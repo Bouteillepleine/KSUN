@@ -34,7 +34,19 @@ val androidBuildToolsVersion = "36.1.0"
 val androidCompileNdkVersion by extra(libs.versions.ndk.get())
 val androidSourceCompatibility = JavaVersion.VERSION_21
 val androidTargetCompatibility = JavaVersion.VERSION_21
-val managerVersionCode by extra(getVersionCode())
+// Upstream numbering: shared with ksud and the kernel driver (userspace/ksud/build.rs).
+// Keep it around so features that pair the manager with the bundled LKM still line up.
+val managerBaseVersionCode by extra(getUpstreamVersionCode())
+
+// This fork deliberately outranks upstream. The in-app updater compares the raw
+// version code against upstream's release assets, and the package manager refuses
+// to install a lower code over a higher one, so a large offset means an upstream
+// APK can never present itself as an update to a build made from this tree.
+// Override with -PmanagerVersionOffset=... / -PmanagerVersionMajor=... when needed.
+val managerVersionOffset = (findProperty("managerVersionOffset") as String?)?.toInt() ?: 900_000
+val managerVersionMajor = (findProperty("managerVersionMajor") as String?)?.toInt() ?: 9
+
+val managerVersionCode by extra(getUpstreamVersionCode() + managerVersionOffset)
 val managerVersionName by extra(getVersionName())
 
 fun getGitCommitCount(): Int {
@@ -47,14 +59,22 @@ fun getGitDescribe(): String {
     return process.inputStream.bufferedReader().use { it.readText().trim() }
 }
 
-fun getVersionCode(): Int {
+fun getUpstreamVersionCode(): Int {
     val commitCount = getGitCommitCount()
     val major = 1
     return major * 30000 + commitCount
 }
 
+fun getGitShortSha(): String {
+    val process = Runtime.getRuntime().exec(arrayOf("git", "rev-parse", "--short", "HEAD"))
+    return process.inputStream.bufferedReader().use { it.readText().trim() }
+}
+
+// Fork-major leading the name so it also reads as newer than upstream at a glance;
+// the short sha keeps every build traceable back to a commit.
 fun getVersionName(): String {
-    return getGitDescribe()
+    val sha = getGitShortSha().ifBlank { getGitDescribe() }
+    return "v$managerVersionMajor.0.0-$sha"
 }
 
 subprojects {
