@@ -14,6 +14,7 @@ plugins {
 
 val managerVersionCode: Int by rootProject.extra
 val managerVersionName: String by rootProject.extra
+val managerBaseVersionCode: Int by rootProject.extra
 
 apksign {
     storeFileProperty = "KEYSTORE_FILE"
@@ -24,6 +25,12 @@ apksign {
 
 android {
     namespace = "com.rifsxd.ksunext"
+
+    defaultConfig {
+        // Upstream-aligned code, used where the manager has to line up with ksud /
+        // the bundled LKM rather than with its own (deliberately inflated) versionCode.
+        buildConfigField("int", "UPSTREAM_VERSION_CODE", "$managerBaseVersionCode")
+    }
 
     buildTypes {
         release {
