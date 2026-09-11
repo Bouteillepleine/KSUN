@@ -11,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import com.rifsxd.ksunext.ui.component.pressScale
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -940,11 +942,17 @@ fun ModuleItem(
         }
     }
 
+    val cardInteractionSource = remember { MutableInteractionSource() }
+
     Card(
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(cardInteractionSource)
             .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
+                interactionSource = cardInteractionSource,
+                indication = LocalIndication.current,
                 onClick = onExpandToggle,
                 onLongClick = {
                     showMenu = true

@@ -27,6 +27,7 @@ import com.rifsxd.ksunext.ui.rememberScrollConnection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -45,6 +46,16 @@ import com.rifsxd.ksunext.ksuApp
 import com.rifsxd.ksunext.Natives
 import com.rifsxd.ksunext.R
 import com.rifsxd.ksunext.ui.component.SearchAppBar
+import com.rifsxd.ksunext.ui.component.StatusChip
+import com.rifsxd.ksunext.ui.component.pressScale
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.VisibilityOff
 import com.rifsxd.ksunext.ui.viewmodel.SuperUserViewModel
 import kotlinx.coroutines.launch
 
@@ -191,89 +202,102 @@ private fun AppItem(
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     val developerOptionsEnabled = prefs.getBoolean("enable_developer_options", false)
+    val scheme = MaterialTheme.colorScheme
+    val interactionSource = remember { MutableInteractionSource() }
 
     Card(
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(onClick = onClickListener)
+            .pressScale(interactionSource)
     ) {
-        ListItem(
-            modifier = Modifier.fillMaxWidth(),
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-            headlineContent = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClick = onClickListener
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(app.packageInfo)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = app.label,
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(14.dp))
+            )
+
+            Spacer(Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = app.label,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-            },
-            supportingContent = {
-                Column {
-                    Text(
-                        text = app.displayIdentifier,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                Text(
+                    text = app.displayIdentifier,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
 
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        if (app.allowSu) {
-                            val rootLabel = if (developerOptionsEnabled) {
-                                "ROOT | UID: ${app.uid}"
-                            } else {
-                                "ROOT"
-                            }
-                            LabelItem(
-                                text = rootLabel,
-                            )
-                        } else {
-                            if (Natives.uidShouldUmount(app.uid)) {
-                                LabelItem(
-                                    text = "UMOUNT",
-                                    style = LabelItemDefaults.style.copy(
-                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                )
-                            }
-                        }
-                        if (app.hasCustomProfile) {
-                            LabelItem(
-                                text = "CUSTOM",
-                                style = LabelItemDefaults.style.copy(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                            )
-                        } else if (!app.allowSu && !Natives.uidShouldUmount(app.uid)) {
-                            LabelItem(
-                                text = "DEFAULT",
-                                style = LabelItemDefaults.style.copy(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
-                            )
-                        }
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (app.allowSu) {
+                        StatusChip(
+                            text = if (developerOptionsEnabled) "ROOT | UID: ${app.uid}" else "ROOT",
+                            icon = Icons.Filled.Key,
+                            containerColor = scheme.primary.copy(alpha = 0.15f),
+                            contentColor = scheme.primary
+                        )
+                    } else if (Natives.uidShouldUmount(app.uid)) {
+                        StatusChip(
+                            text = "UMOUNT",
+                            icon = Icons.Filled.VisibilityOff,
+                            containerColor = scheme.secondaryContainer,
+                            contentColor = scheme.onSecondaryContainer
+                        )
+                    }
+
+                    if (app.hasCustomProfile) {
+                        StatusChip(
+                            text = "CUSTOM",
+                            icon = Icons.Filled.Tune,
+                            containerColor = scheme.tertiaryContainer,
+                            contentColor = scheme.onTertiaryContainer
+                        )
+                    } else if (!app.allowSu && !Natives.uidShouldUmount(app.uid)) {
+                        StatusChip(
+                            text = "DEFAULT",
+                            containerColor = scheme.surfaceContainerHighest,
+                            contentColor = scheme.onSurfaceVariant
+                        )
                     }
                 }
-            },
-            leadingContent = {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(app.packageInfo)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = app.label,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .width(48.dp)
-                        .height(48.dp)
-                )
-            },
-        )
+            }
+
+            Spacer(Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = scheme.onSurfaceVariant
+            )
+        }
     }
 }
 

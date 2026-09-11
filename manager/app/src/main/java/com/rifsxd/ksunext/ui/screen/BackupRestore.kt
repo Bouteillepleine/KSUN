@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.rifsxd.ksunext.R
 import com.rifsxd.ksunext.ksuApp
 import com.rifsxd.ksunext.ui.LocalScrollState
+import com.rifsxd.ksunext.ui.component.TonalIcon
 import com.rifsxd.ksunext.ui.component.rememberLoadingDialog
 import com.rifsxd.ksunext.ui.rememberScrollConnection
 import com.rifsxd.ksunext.ui.util.LocalSnackbarHost
@@ -284,12 +285,12 @@ fun BackupRestoreScreen(navigator: DestinationsNavigator) {
             // ── Module backup ─────────────────────────────────────────────────
             val moduleBackup = stringResource(R.string.module_backup)
             ListItem(
-                leadingContent = { Icon(Icons.Filled.Backup, moduleBackup) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Backup, contentDescription = moduleBackup, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = moduleBackup,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 modifier = Modifier.clickable {
@@ -341,12 +342,12 @@ fun BackupRestoreScreen(navigator: DestinationsNavigator) {
             // ── Allowlist backup ──────────────────────────────────────────────
             val allowlistBackup = stringResource(R.string.allowlist_backup)
             ListItem(
-                leadingContent = { Icon(Icons.Filled.Backup, allowlistBackup) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Backup, contentDescription = allowlistBackup, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = allowlistBackup,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 modifier = Modifier.clickable {
@@ -367,12 +368,12 @@ fun BackupRestoreScreen(navigator: DestinationsNavigator) {
             // ── Allowlist restore ─────────────────────────────────────────────
             val allowlistRestore = stringResource(R.string.allowlist_restore)
             ListItem(
-                leadingContent = { Icon(Icons.Filled.Restore, allowlistRestore) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Restore, contentDescription = allowlistRestore, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = allowlistRestore,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 modifier = Modifier.clickable {
