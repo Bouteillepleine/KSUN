@@ -13,15 +13,77 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PRIMARY,
-    secondary = PRIMARY_DARK,
-    tertiary = SECONDARY_DARK
+    primary = MACCHIATO_BLUE,
+    onPrimary = MACCHIATO_ON_BLUE,
+    primaryContainer = MACCHIATO_BLUE_CONTAINER,
+    onPrimaryContainer = MACCHIATO_ON_BLUE_CONTAINER,
+    inversePrimary = LATTE_BLUE,
+    secondary = MACCHIATO_LAVENDER,
+    onSecondary = MACCHIATO_ON_LAVENDER,
+    secondaryContainer = MACCHIATO_LAVENDER_CONTAINER,
+    onSecondaryContainer = MACCHIATO_ON_LAVENDER_CONTAINER,
+    tertiary = MACCHIATO_TEAL,
+    onTertiary = MACCHIATO_ON_TEAL,
+    tertiaryContainer = MACCHIATO_TEAL_CONTAINER,
+    onTertiaryContainer = MACCHIATO_ON_TEAL_CONTAINER,
+    error = MACCHIATO_RED,
+    onError = MACCHIATO_ON_RED,
+    errorContainer = MACCHIATO_RED_CONTAINER,
+    onErrorContainer = MACCHIATO_ON_RED_CONTAINER,
+    background = MACCHIATO_BASE,
+    onBackground = MACCHIATO_TEXT,
+    surface = MACCHIATO_BASE,
+    onSurface = MACCHIATO_TEXT,
+    surfaceVariant = DARK_GREY,
+    onSurfaceVariant = MACCHIATO_SUBTEXT,
+    surfaceTint = MACCHIATO_BLUE,
+    inverseSurface = MACCHIATO_TEXT,
+    inverseOnSurface = MACCHIATO_BASE,
+    outline = MACCHIATO_OVERLAY,
+    outlineVariant = MACCHIATO_SURFACE1,
+    surfaceContainerLowest = MACCHIATO_CRUST,
+    surfaceContainerLow = MACCHIATO_SURFACE_LOW,
+    surfaceContainer = MACCHIATO_SURFACE_MID,
+    surfaceContainerHigh = MACCHIATO_SURFACE_HIGH,
+    surfaceContainerHighest = DARK_GREY,
+    scrim = Color.Black
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PRIMARY,
-    secondary = PRIMARY_LIGHT,
-    tertiary = SECONDARY_LIGHT
+    primary = LATTE_BLUE,
+    onPrimary = LATTE_ON_BLUE,
+    primaryContainer = LATTE_BLUE_CONTAINER,
+    onPrimaryContainer = LATTE_ON_BLUE_CONTAINER,
+    inversePrimary = MACCHIATO_BLUE,
+    secondary = LATTE_LAVENDER,
+    onSecondary = LATTE_ON_LAVENDER,
+    secondaryContainer = LATTE_LAVENDER_CONTAINER,
+    onSecondaryContainer = LATTE_ON_LAVENDER_CONTAINER,
+    tertiary = LATTE_TEAL,
+    onTertiary = LATTE_ON_TEAL,
+    tertiaryContainer = LATTE_TEAL_CONTAINER,
+    onTertiaryContainer = LATTE_ON_TEAL_CONTAINER,
+    error = LATTE_RED,
+    onError = LATTE_ON_RED,
+    errorContainer = LATTE_RED_CONTAINER,
+    onErrorContainer = LATTE_ON_RED_CONTAINER,
+    background = LATTE_BASE,
+    onBackground = LATTE_TEXT,
+    surface = LATTE_BASE,
+    onSurface = LATTE_TEXT,
+    surfaceVariant = LATTE_MANTLE,
+    onSurfaceVariant = LATTE_SUBTEXT,
+    surfaceTint = LATTE_BLUE,
+    inverseSurface = LATTE_TEXT,
+    inverseOnSurface = LATTE_BASE,
+    outline = LATTE_OVERLAY,
+    outlineVariant = LATTE_SURFACE0,
+    surfaceContainerLowest = Color.White,
+    surfaceContainerLow = Color(0xFFF6F7FA),
+    surfaceContainer = Color(0xFFE9ECF1),
+    surfaceContainerHigh = LATTE_MANTLE,
+    surfaceContainerHighest = LATTE_CRUST,
+    scrim = Color.Black
 )
 
 fun Color.blend(other: Color, ratio: Float): Color {
@@ -84,6 +146,7 @@ fun KernelSUTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }

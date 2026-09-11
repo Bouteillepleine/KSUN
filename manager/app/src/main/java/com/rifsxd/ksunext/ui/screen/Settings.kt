@@ -53,6 +53,7 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.rifsxd.ksunext.BuildConfig
 import com.rifsxd.ksunext.Natives
 import com.rifsxd.ksunext.R
+import com.rifsxd.ksunext.ui.component.TonalIcon
 import com.rifsxd.ksunext.ui.component.*
 import com.rifsxd.ksunext.ui.util.*
 import kotlinx.coroutines.Dispatchers
@@ -211,7 +212,7 @@ private fun KernelFeaturesCard(
     val selinuxHideSupported = selinuxHideStatus == "supported"
     val avcSpoofSupported = avcSpoofStatus == "supported"
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -225,7 +226,7 @@ private fun KernelFeaturesCard(
                 title = stringResource(R.string.settings_umount_modules_default),
                 summary = stringResource(R.string.settings_umount_modules_default_summary),
                 checked = umountChecked,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) {
                 if (Natives.setDefaultUmountModules(it)) {
@@ -246,7 +247,7 @@ private fun KernelFeaturesCard(
                 },
                 checked = isSuEnabled,
                 enabled = suCompatSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 val prefsLocal = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -270,7 +271,7 @@ private fun KernelFeaturesCard(
                 },
                 checked = isKernelUmountEnabled,
                 enabled = kernelUmountSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 val prefsLocal = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -292,7 +293,7 @@ private fun KernelFeaturesCard(
                 summary = sulogSummary,
                 checked = isSulogEnabled,
                 enabled = sulogSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 if (execKsud("feature set sulog ${if (checked) 1 else 0}", true)) {
@@ -314,7 +315,7 @@ private fun KernelFeaturesCard(
                 },
                 checked = isAdbRootEnabled,
                 enabled = adbRootSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 val prefsLocal = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -339,7 +340,7 @@ private fun KernelFeaturesCard(
                 },
                 checked = isSelinuxHideEnabled,
                 enabled = selinuxHideSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 scope.launch(Dispatchers.IO) {
@@ -379,7 +380,7 @@ private fun KernelFeaturesCard(
                 },
                 checked = isAvcSpoofEnabled,
                 enabled = avcSpoofSupported,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 val prefsLocal = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -398,7 +399,7 @@ private fun SecurityCard(
     navigator: DestinationsNavigator,
     loadingDialog: LoadingDialogHandle
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -412,7 +413,7 @@ private fun SecurityCard(
                 title = stringResource(R.string.set_selinux),
                 summary = stringResource(R.string.set_selinux_summary),
                 checked = isSelinuxPermissive,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) { checked ->
                 val shouldEnforce = !checked
@@ -424,15 +425,15 @@ private fun SecurityCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { navigator.navigate(AppProfileTemplateScreenDestination) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.Fence, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Fence, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.settings_profile_template),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 supportingContent = {
@@ -443,15 +444,15 @@ private fun SecurityCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { navigator.navigate(BackupRestoreScreenDestination) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.Backup, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Backup, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.backup_restore),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -459,15 +460,15 @@ private fun SecurityCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { navigator.navigate(DeveloperScreenDestination) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.DeveloperBoard, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.DeveloperBoard, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.developer),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -476,7 +477,7 @@ private fun SecurityCard(
                 UninstallItem(
                     navigator = navigator,
                     withLoading = { loadingDialog.withLoading(it) },
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
                 )
             }
         }
@@ -493,7 +494,7 @@ private fun AppSettingsCard(
     scope: kotlinx.coroutines.CoroutineScope,
     context: android.content.Context
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -507,7 +508,7 @@ private fun AppSettingsCard(
                 title = stringResource(R.string.settings_check_update),
                 summary = stringResource(R.string.settings_check_update_summary),
                 checked = checkUpdate,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
             ) {
                 prefs.edit { putBoolean("check_update", it) }
@@ -517,15 +518,15 @@ private fun AppSettingsCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { navigator.navigate(CustomizationScreenDestination) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.Palette, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.Palette, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.customization),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -535,15 +536,15 @@ private fun AppSettingsCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { showBottomsheet = true },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.BugReport, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.BugReport, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.export_log),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -586,15 +587,15 @@ private fun AppSettingsCard(
             ListItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { aboutDialog.show() },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                leadingContent = { Icon(Icons.Filled.ContactPage, null) },
+                leadingContent = { TonalIcon(imageVector = Icons.Filled.ContactPage, contentDescription = null, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
                 headlineContent = {
                     Text(
                         text = stringResource(R.string.about),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
@@ -706,12 +707,12 @@ fun UninstallItem(
     ListItem(
         modifier = modifier.clickable { uninstallDialog.show() },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        leadingContent = { Icon(Icons.Filled.Delete, uninstall) },
+        leadingContent = { TonalIcon(imageVector = Icons.Filled.Delete, contentDescription = uninstall, containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), contentColor = MaterialTheme.colorScheme.primary) },
         headlineContent = {
             Text(
                 text = uninstall,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     )

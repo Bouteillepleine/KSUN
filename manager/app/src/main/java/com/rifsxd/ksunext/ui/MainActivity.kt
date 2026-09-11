@@ -16,6 +16,9 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -553,6 +556,8 @@ private fun BottomBar(
     if (selectedIndex != -1) lastValidSelection.value = selectedIndex
     val effectiveSelectedIndex = if (selectedIndex != -1) selectedIndex else lastValidSelection.value
 
+    val haptic = LocalHapticFeedback.current
+
     // Drag state
     var isDraggingPill by remember { mutableStateOf(false) }
     var dragTargetIndex by remember { mutableStateOf(effectiveSelectedIndex) }
@@ -602,9 +607,10 @@ private fun BottomBar(
         ) {
             Surface(
                 modifier = Modifier.wrapContentWidth(),
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 tonalElevation = 3.dp,
-                shadowElevation = 8.dp
+                shadowElevation = 12.dp
             ) {
                 val itemSize = 56.dp
                 val itemSpacing = 4.dp
@@ -707,12 +713,22 @@ private fun BottomBar(
                             visibleDestinations.forEachIndexed { index, destination ->
                                 val isSelected = index == (if (isDraggingPill) dragTargetIndex else effectiveSelectedIndex)
 
+                                val iconScale by animateFloatAsState(
+                                    targetValue = if (isSelected) 1.15f else 1f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    ),
+                                    label = "navIconScale"
+                                )
+
                                 Box(
                                     modifier = Modifier
                                         .size(itemSize)
-                                        .clip(MaterialTheme.shapes.large)
+                                        .clip(CircleShape)
                                         .clickable {
                                             if (destination.direction.route == currentRoute) return@clickable
+                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                             navigateToIndex(index)
                                         },
                                     contentAlignment = Alignment.Center
@@ -721,9 +737,13 @@ private fun BottomBar(
                                         if (isSelected) destination.iconSelected else destination.iconNotSelected,
                                         stringResource(destination.label),
                                         tint = if (isSelected) {
-                                            MaterialTheme.colorScheme.primary
+                                            MaterialTheme.colorScheme.onSecondaryContainer
                                         } else {
                                             MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                        modifier = Modifier.graphicsLayer {
+                                            scaleX = iconScale
+                                            scaleY = iconScale
                                         }
                                     )
                                 }

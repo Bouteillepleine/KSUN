@@ -58,17 +58,19 @@ fun SwitchItem(
                 Text(
                     modifier = Modifier.then(stateAlpha),
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
         leadingContent = icon?.let {
             {
-                Icon(
-                    modifier = Modifier.then(stateAlpha),
+                TonalIcon(
                     imageVector = icon,
-                    contentDescription = title
+                    contentDescription = title,
+                    modifier = Modifier.then(stateAlpha),
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
             }
         },
@@ -84,7 +86,9 @@ fun SwitchItem(
             if (summary != null) {
                 Text(
                     modifier = Modifier.then(stateAlpha),
-                    text = summary
+                    text = summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
