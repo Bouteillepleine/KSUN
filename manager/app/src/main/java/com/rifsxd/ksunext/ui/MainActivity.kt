@@ -69,6 +69,7 @@ import com.rifsxd.ksunext.ksuApp
 import com.rifsxd.ksunext.ui.screen.BottomBarDestination
 import com.rifsxd.ksunext.ui.screen.FlashIt
 import com.rifsxd.ksunext.ui.theme.KernelSUTheme
+import com.rifsxd.ksunext.ui.theme.ThemeAccent
 import com.rifsxd.ksunext.ui.util.*
 import com.rifsxd.ksunext.ui.viewmodel.ModuleViewModel
 import com.rifsxd.ksunext.ui.viewmodel.SuperUserViewModel
@@ -200,6 +201,7 @@ class MainActivity : ComponentActivity() {
     var moduleActionId by mutableStateOf<String?>(null)
     var amoledModeState = mutableStateOf(false)
     var dynamicColorState = mutableStateOf(true)
+    var themeAccentState = mutableStateOf(ThemeAccent.Default)
     private val handler = Handler(Looper.getMainLooper())
 
     val moduleViewModel: ModuleViewModel by viewModels()
@@ -231,6 +233,7 @@ class MainActivity : ComponentActivity() {
             val prefsInit = getSharedPreferences("settings", MODE_PRIVATE)
             amoledModeState.value = prefsInit.getBoolean("enable_amoled", false)
             dynamicColorState.value = prefsInit.getBoolean("enable_dynamic_color", true)
+            themeAccentState.value = ThemeAccent.fromKey(prefsInit.getString("theme_accent", null))
         } catch (_: Exception) {}
 
         val isManager = Natives.isManager
@@ -247,7 +250,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             KernelSUTheme(
                 dynamicColor = dynamicColorState.value,
-                amoledMode = amoledModeState.value
+                amoledMode = amoledModeState.value,
+                accent = themeAccentState.value
             ) {
                 val navController = rememberNavController()
                 val snackBarHostState = remember { SnackbarHostState() }
@@ -494,6 +498,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun setThemeAccent(accent: ThemeAccent) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().putString("theme_accent", accent.key).apply()
+        } catch (_: Exception) {}
+        themeAccentState.value = accent
     }
 
     fun setDynamicColor(enabled: Boolean) {

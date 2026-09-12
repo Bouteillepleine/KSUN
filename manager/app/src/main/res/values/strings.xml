@@ -145,6 +145,8 @@
     <string name="restart_app">Restart</string>
     <string name="settings_dynamic_color">Dynamic colours</string>
     <string name="settings_dynamic_color_summary">Take the palette from your wallpaper. Turn off to use the built-in theme.</string>
+    <string name="settings_accent_color">Accent colour</string>
+    <string name="settings_accent_color_summary">Pick the colour used across the app.</string>
     <string name="settings_amoled_mode">AMOLED mode</string>
     <string name="settings_amoled_mode_summary">Enable a pure black theme useful for AMOLED screens to reduce eye strain and save battery.</string>
     <string name="restart_required">Restart required</string>

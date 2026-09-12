@@ -43,6 +43,17 @@ import com.rifsxd.ksunext.Natives
 import com.rifsxd.ksunext.R
 import android.os.Build
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ColorLens
+import com.rifsxd.ksunext.ui.theme.ThemeAccent
+import com.rifsxd.ksunext.ui.component.TonalIcon
 import com.rifsxd.ksunext.ui.component.SwitchItem
 import com.rifsxd.ksunext.ui.util.refreshActivity
 import com.rifsxd.ksunext.ui.util.LocalSnackbarHost
@@ -159,22 +170,38 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                var dynamicColor by rememberSaveable {
-                    mutableStateOf(
+            var dynamicColorEnabled by rememberSaveable {
+                mutableStateOf(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                         prefs.getBoolean("enable_dynamic_color", true)
-                    )
-                }
+                )
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val activity = LocalContext.current as? MainActivity
                 SwitchItem(
                     icon = Icons.Filled.Palette,
                     title = stringResource(id = R.string.settings_dynamic_color),
                     summary = stringResource(id = R.string.settings_dynamic_color_summary),
-                    checked = dynamicColor
+                    checked = dynamicColorEnabled
                 ) { checked ->
                     activity?.setDynamicColor(checked)
-                    dynamicColor = checked
+                    dynamicColorEnabled = checked
                 }
+            }
+
+            if (!dynamicColorEnabled) {
+                val activity = LocalContext.current as? MainActivity
+                var accent by remember {
+                    mutableStateOf(ThemeAccent.fromKey(prefs.getString("theme_accent", null)))
+                }
+                AccentPicker(
+                    selected = accent,
+                    onSelect = { picked ->
+                        activity?.setThemeAccent(picked)
+                        accent = picked
+                    }
+                )
             }
 
             var enableAmoled by rememberSaveable {
@@ -295,4 +322,71 @@ private fun TopBar(
 @Composable
 private fun CustomizationPreview() {
     CustomizationScreen(EmptyDestinationsNavigator)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AccentPicker(
+    selected: ThemeAccent,
+    onSelect: (ThemeAccent) -> Unit
+) {
+    val dark = isSystemInDarkTheme()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TonalIcon(
+                imageVector = Icons.Filled.ColorLens,
+                contentDescription = null,
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = stringResource(id = R.string.settings_accent_color),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(id = R.string.settings_accent_color_summary),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            ThemeAccent.entries.forEach { option ->
+                val colour = option.swatch(dark)
+                val isSelected = option == selected
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(colour)
+                        .clickable { onSelect(option) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = option.key,
+                            tint = if (dark) Color.Black.copy(alpha = 0.7f) else Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
