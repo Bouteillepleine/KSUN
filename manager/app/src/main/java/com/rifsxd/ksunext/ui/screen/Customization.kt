@@ -48,6 +48,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.filled.Check
@@ -190,15 +191,20 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 }
             }
 
-            if (!dynamicColorEnabled) {
-                val activity = LocalContext.current as? MainActivity
+            run {
+                val accentActivity = LocalContext.current as? MainActivity
                 var accent by remember {
                     mutableStateOf(ThemeAccent.fromKey(prefs.getString("theme_accent", null)))
                 }
                 AccentPicker(
                     selected = accent,
+                    dimmed = dynamicColorEnabled,
                     onSelect = { picked ->
-                        activity?.setThemeAccent(picked)
+                        if (dynamicColorEnabled) {
+                            accentActivity?.setDynamicColor(false)
+                            dynamicColorEnabled = false
+                        }
+                        accentActivity?.setThemeAccent(picked)
                         accent = picked
                     }
                 )
@@ -328,6 +334,7 @@ private fun CustomizationPreview() {
 @Composable
 private fun AccentPicker(
     selected: ThemeAccent,
+    dimmed: Boolean = false,
     onSelect: (ThemeAccent) -> Unit
 ) {
     val dark = isSystemInDarkTheme()
@@ -352,7 +359,11 @@ private fun AccentPicker(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = stringResource(id = R.string.settings_accent_color_summary),
+                    text = if (dimmed) {
+                        stringResource(id = R.string.settings_accent_color_dynamic_hint)
+                    } else {
+                        stringResource(id = R.string.settings_accent_color_summary)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -362,7 +373,9 @@ private fun AccentPicker(
         Spacer(Modifier.height(14.dp))
 
         FlowRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(if (dimmed) 0.5f else 1f),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
