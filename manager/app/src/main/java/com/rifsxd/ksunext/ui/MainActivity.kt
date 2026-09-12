@@ -69,6 +69,11 @@ import com.rifsxd.ksunext.ksuApp
 import com.rifsxd.ksunext.ui.screen.BottomBarDestination
 import com.rifsxd.ksunext.ui.screen.FlashIt
 import com.rifsxd.ksunext.ui.theme.KernelSUTheme
+import com.rifsxd.ksunext.ui.theme.AccentPair
+import com.rifsxd.ksunext.ui.theme.DefaultAccentPair
+import com.rifsxd.ksunext.ui.theme.DEFAULT_CUSTOM_ARGB
+import com.rifsxd.ksunext.ui.theme.customAccentPair
+import com.rifsxd.ksunext.ui.theme.resolveAccent
 import com.rifsxd.ksunext.ui.theme.ThemeAccent
 import com.rifsxd.ksunext.ui.util.*
 import com.rifsxd.ksunext.ui.viewmodel.ModuleViewModel
@@ -201,7 +206,7 @@ class MainActivity : ComponentActivity() {
     var moduleActionId by mutableStateOf<String?>(null)
     var amoledModeState = mutableStateOf(false)
     var dynamicColorState = mutableStateOf(true)
-    var themeAccentState = mutableStateOf(ThemeAccent.Default)
+    var themeAccentState = mutableStateOf(DefaultAccentPair)
     private val handler = Handler(Looper.getMainLooper())
 
     val moduleViewModel: ModuleViewModel by viewModels()
@@ -233,7 +238,10 @@ class MainActivity : ComponentActivity() {
             val prefsInit = getSharedPreferences("settings", MODE_PRIVATE)
             amoledModeState.value = prefsInit.getBoolean("enable_amoled", false)
             dynamicColorState.value = prefsInit.getBoolean("enable_dynamic_color", true)
-            themeAccentState.value = ThemeAccent.fromKey(prefsInit.getString("theme_accent", null))
+            themeAccentState.value = resolveAccent(
+                prefsInit.getString("theme_accent", null),
+                prefsInit.getInt("theme_accent_custom", DEFAULT_CUSTOM_ARGB)
+            )
         } catch (_: Exception) {}
 
         val isManager = Natives.isManager
@@ -505,7 +513,18 @@ class MainActivity : ComponentActivity() {
             val prefs = getSharedPreferences("settings", MODE_PRIVATE)
             prefs.edit().putString("theme_accent", accent.key).apply()
         } catch (_: Exception) {}
-        themeAccentState.value = accent
+        themeAccentState.value = AccentPair(accent.light, accent.dark)
+    }
+
+    fun setCustomAccent(argb: Int) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit()
+                .putString("theme_accent", ThemeAccent.CUSTOM_KEY)
+                .putInt("theme_accent_custom", argb)
+                .apply()
+        } catch (_: Exception) {}
+        themeAccentState.value = customAccentPair(argb)
     }
 
     fun setDynamicColor(enabled: Boolean) {

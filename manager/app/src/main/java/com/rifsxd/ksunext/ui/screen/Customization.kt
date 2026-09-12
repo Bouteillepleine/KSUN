@@ -55,6 +55,11 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ColorLens
 import com.rifsxd.ksunext.ui.theme.ThemeAccent
 import com.rifsxd.ksunext.ui.component.TonalIcon
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.material.icons.filled.Colorize
+import com.rifsxd.ksunext.ui.theme.DEFAULT_CUSTOM_ARGB
+import com.rifsxd.ksunext.ui.component.ColorPickerDialog
 import com.rifsxd.ksunext.ui.component.SwitchItem
 import com.rifsxd.ksunext.ui.util.refreshActivity
 import com.rifsxd.ksunext.ui.util.LocalSnackbarHost
@@ -196,8 +201,18 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 var accent by remember {
                     mutableStateOf(ThemeAccent.fromKey(prefs.getString("theme_accent", null)))
                 }
+                var accentKey by remember {
+                    mutableStateOf(prefs.getString("theme_accent", null) ?: ThemeAccent.Default.key)
+                }
+                var customArgb by remember {
+                    mutableStateOf(prefs.getInt("theme_accent_custom", DEFAULT_CUSTOM_ARGB))
+                }
+                var showPicker by remember { mutableStateOf(false) }
+
                 AccentPicker(
                     selected = accent,
+                    selectedKey = accentKey,
+                    customColor = Color(customArgb),
                     dimmed = dynamicColorEnabled,
                     onSelect = { picked ->
                         if (dynamicColorEnabled) {
@@ -206,8 +221,30 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                         }
                         accentActivity?.setThemeAccent(picked)
                         accent = picked
+                        accentKey = picked.key
+                    },
+                    onCustomClick = {
+                        if (dynamicColorEnabled) {
+                            accentActivity?.setDynamicColor(false)
+                            dynamicColorEnabled = false
+                        }
+                        showPicker = true
                     }
                 )
+
+                if (showPicker) {
+                    ColorPickerDialog(
+                        initial = Color(customArgb),
+                        onDismiss = { showPicker = false },
+                        onConfirm = { chosen ->
+                            showPicker = false
+                            val argb = chosen.toArgb()
+                            customArgb = argb
+                            accentKey = ThemeAccent.CUSTOM_KEY
+                            accentActivity?.setCustomAccent(argb)
+                        }
+                    )
+                }
             }
 
             var enableAmoled by rememberSaveable {
@@ -334,8 +371,11 @@ private fun CustomizationPreview() {
 @Composable
 private fun AccentPicker(
     selected: ThemeAccent,
+    selectedKey: String,
+    customColor: Color,
     dimmed: Boolean = false,
-    onSelect: (ThemeAccent) -> Unit
+    onSelect: (ThemeAccent) -> Unit,
+    onCustomClick: () -> Unit
 ) {
     val dark = isSystemInDarkTheme()
 
@@ -381,7 +421,7 @@ private fun AccentPicker(
         ) {
             ThemeAccent.entries.forEach { option ->
                 val colour = option.swatch(dark)
-                val isSelected = option == selected
+                val isSelected = selectedKey == option.key
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -398,6 +438,44 @@ private fun AccentPicker(
                             modifier = Modifier.size(22.dp)
                         )
                     }
+                }
+            }
+
+            val customSelected = selectedKey == ThemeAccent.CUSTOM_KEY
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.sweepGradient(
+                            (0..6).map { Color.hsv(it * 60f, 0.75f, 0.95f) }
+                        )
+                    )
+                    .clickable { onCustomClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (customSelected) {
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(customColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "custom",
+                            tint = if (dark) Color.Black.copy(alpha = 0.7f) else Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Colorize,
+                        contentDescription = "custom",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
