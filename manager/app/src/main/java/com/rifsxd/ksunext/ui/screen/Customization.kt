@@ -41,6 +41,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.rifsxd.ksunext.Natives
 import com.rifsxd.ksunext.R
+import android.os.Build
+import androidx.compose.material.icons.filled.Palette
 import com.rifsxd.ksunext.ui.component.SwitchItem
 import com.rifsxd.ksunext.ui.util.refreshActivity
 import com.rifsxd.ksunext.ui.util.LocalSnackbarHost
@@ -154,6 +156,24 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 ) {
                     prefs.edit { putBoolean("use_banner", it) }
                     useBanner = it
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                var dynamicColor by rememberSaveable {
+                    mutableStateOf(
+                        prefs.getBoolean("enable_dynamic_color", true)
+                    )
+                }
+                val activity = LocalContext.current as? MainActivity
+                SwitchItem(
+                    icon = Icons.Filled.Palette,
+                    title = stringResource(id = R.string.settings_dynamic_color),
+                    summary = stringResource(id = R.string.settings_dynamic_color_summary),
+                    checked = dynamicColor
+                ) { checked ->
+                    activity?.setDynamicColor(checked)
+                    dynamicColor = checked
                 }
             }
 
