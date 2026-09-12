@@ -97,7 +97,7 @@ fun Color.blend(other: Color, ratio: Float): Color {
     )
 }
 
-private fun ColorScheme.withAccent(accent: ThemeAccent, darkTheme: Boolean): ColorScheme {
+private fun ColorScheme.withAccent(accent: AccentPair, darkTheme: Boolean): ColorScheme {
     val a = if (darkTheme) accent.dark else accent.light
 
     // Containers are blended from the accent toward the palette's base so every
@@ -145,7 +145,7 @@ fun KernelSUTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     amoledMode: Boolean = false,
-    accent: ThemeAccent = ThemeAccent.Default,
+    accent: AccentPair = DefaultAccentPair,
     content: @Composable () -> Unit
 ) {
     val darkBase = DarkColorScheme.withAccent(accent, darkTheme = true)
