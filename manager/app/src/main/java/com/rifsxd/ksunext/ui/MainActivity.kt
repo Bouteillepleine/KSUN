@@ -199,6 +199,7 @@ class MainActivity : ComponentActivity() {
     var navigateLoc by mutableStateOf<NavigateLocation?>(null)
     var moduleActionId by mutableStateOf<String?>(null)
     var amoledModeState = mutableStateOf(false)
+    var dynamicColorState = mutableStateOf(true)
     private val handler = Handler(Looper.getMainLooper())
 
     val moduleViewModel: ModuleViewModel by viewModels()
@@ -229,6 +230,7 @@ class MainActivity : ComponentActivity() {
         try {
             val prefsInit = getSharedPreferences("settings", MODE_PRIVATE)
             amoledModeState.value = prefsInit.getBoolean("enable_amoled", false)
+            dynamicColorState.value = prefsInit.getBoolean("enable_dynamic_color", true)
         } catch (_: Exception) {}
 
         val isManager = Natives.isManager
@@ -243,7 +245,10 @@ class MainActivity : ComponentActivity() {
             handleIntent(intent)
 
         setContent {
-            KernelSUTheme(amoledMode = amoledModeState.value) {
+            KernelSUTheme(
+                dynamicColor = dynamicColorState.value,
+                amoledMode = amoledModeState.value
+            ) {
                 val navController = rememberNavController()
                 val snackBarHostState = remember { SnackbarHostState() }
                 val currentDestination = navController.currentBackStackEntryAsState().value?.destination
@@ -489,6 +494,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun setDynamicColor(enabled: Boolean) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().putBoolean("enable_dynamic_color", enabled).apply()
+        } catch (_: Exception) {}
+        dynamicColorState.value = enabled
     }
 
     fun setAmoledMode(enabled: Boolean) {
