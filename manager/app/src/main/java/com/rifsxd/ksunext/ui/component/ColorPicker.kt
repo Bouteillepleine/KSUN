@@ -3,8 +3,9 @@ package com.rifsxd.ksunext.ui.component
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,18 +98,19 @@ fun ColorPickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(190.dp)
-                            .pointerInput(hue) {
-                                fun update(pos: Offset) {
-                                    sat = (pos.x / size.width).coerceIn(0f, 1f)
-                                    value = 1f - (pos.y / size.height).coerceIn(0f, 1f)
-                                }
-                                detectTapGestures { update(it) }
-                            }
-                            .pointerInput(hue) {
-                                detectDragGestures { change, _ ->
-                                    change.consume()
-                                    sat = (change.position.x / size.width).coerceIn(0f, 1f)
-                                    value = 1f - (change.position.y / size.height).coerceIn(0f, 1f)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    fun update(pos: Offset) {
+                                        sat = (pos.x / size.width).coerceIn(0f, 1f)
+                                        value = 1f - (pos.y / size.height).coerceIn(0f, 1f)
+                                    }
+                                    val down = awaitFirstDown(requireUnconsumed = false)
+                                    down.consume()
+                                    update(down.position)
+                                    drag(down.id) { change ->
+                                        change.consume()
+                                        update(change.position)
+                                    }
                                 }
                             }
                     ) {
@@ -136,15 +138,17 @@ fun ColorPickerDialog(
                         .height(34.dp)
                         .clip(RoundedCornerShape(17.dp))
                         .pointerInput(Unit) {
-                            fun update(x: Float) {
-                                hue = ((x / size.width) * 360f).coerceIn(0f, 360f)
-                            }
-                            detectTapGestures { update(it.x) }
-                        }
-                        .pointerInput(Unit) {
-                            detectDragGestures { change, _ ->
-                                change.consume()
-                                hue = ((change.position.x / size.width) * 360f).coerceIn(0f, 360f)
+                            awaitEachGesture {
+                                fun update(x: Float) {
+                                    hue = ((x / size.width) * 360f).coerceIn(0f, 360f)
+                                }
+                                val down = awaitFirstDown(requireUnconsumed = false)
+                                down.consume()
+                                update(down.position.x)
+                                drag(down.id) { change ->
+                                    change.consume()
+                                    update(change.position.x)
+                                }
                             }
                         }
                 ) {
