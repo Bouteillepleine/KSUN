@@ -6,6 +6,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -96,14 +97,59 @@ fun Color.blend(other: Color, ratio: Float): Color {
     )
 }
 
+private fun ColorScheme.withAccent(accent: ThemeAccent, darkTheme: Boolean): ColorScheme {
+    val a = if (darkTheme) accent.dark else accent.light
+
+    // Containers are blended from the accent toward the palette's base so every
+    // accent lands at a comparable lightness instead of needing hand-tuned pairs.
+    return if (darkTheme) {
+        copy(
+            primary = a,
+            onPrimary = a.blend(Color.Black, 0.78f),
+            primaryContainer = a.blend(MACCHIATO_BASE, 0.68f),
+            onPrimaryContainer = a.blend(Color.White, 0.72f),
+            secondary = a.blend(MACCHIATO_LAVENDER, 0.45f),
+            onSecondary = a.blend(Color.Black, 0.78f),
+            secondaryContainer = a.blend(MACCHIATO_LAVENDER, 0.45f).blend(MACCHIATO_BASE, 0.62f),
+            onSecondaryContainer = a.blend(Color.White, 0.78f),
+            tertiary = a.blend(MACCHIATO_TEAL, 0.55f),
+            onTertiary = a.blend(Color.Black, 0.80f),
+            tertiaryContainer = a.blend(MACCHIATO_TEAL, 0.55f).blend(MACCHIATO_BASE, 0.66f),
+            onTertiaryContainer = a.blend(Color.White, 0.78f),
+            surfaceTint = a,
+            inversePrimary = accent.light
+        )
+    } else {
+        copy(
+            primary = a,
+            onPrimary = Color.White,
+            primaryContainer = a.blend(LATTE_BASE, 0.80f),
+            onPrimaryContainer = a.blend(Color.Black, 0.62f),
+            secondary = a.blend(LATTE_LAVENDER, 0.45f),
+            onSecondary = Color.White,
+            secondaryContainer = a.blend(LATTE_LAVENDER, 0.45f).blend(LATTE_BASE, 0.82f),
+            onSecondaryContainer = a.blend(Color.Black, 0.66f),
+            tertiary = a.blend(LATTE_TEAL, 0.55f),
+            onTertiary = Color.White,
+            tertiaryContainer = a.blend(LATTE_TEAL, 0.55f).blend(LATTE_BASE, 0.84f),
+            onTertiaryContainer = a.blend(Color.Black, 0.68f),
+            surfaceTint = a,
+            inversePrimary = accent.dark
+        )
+    }
+}
+
 @Composable
 fun KernelSUTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     amoledMode: Boolean = false,
+    accent: ThemeAccent = ThemeAccent.Default,
     content: @Composable () -> Unit
 ) {
+    val darkBase = DarkColorScheme.withAccent(accent, darkTheme = true)
+    val lightBase = LightColorScheme.withAccent(accent, darkTheme = false)
     val colorScheme = when {
         amoledMode && darkTheme && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -124,10 +170,10 @@ fun KernelSUTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         amoledMode && darkTheme -> {
-            DarkColorScheme.copy(
+            darkBase.copy(
                 background = AMOLED_BLACK,
                 surface = AMOLED_BLACK,
-                surfaceVariant = DARK_GREY.blend(AMOLED_BLACK, 0.8f),
+                surfaceVariant = darkBase.surfaceVariant.blend(AMOLED_BLACK, 0.8f),
                 surfaceContainer = DARK_GREY.blend(AMOLED_BLACK, 0.8f),
                 surfaceContainerLow = DARK_GREY.blend(AMOLED_BLACK, 0.8f),
                 surfaceContainerLowest = DARK_GREY.blend(AMOLED_BLACK, 0.8f),
@@ -135,8 +181,8 @@ fun KernelSUTheme(
                 surfaceContainerHighest = DARK_GREY.blend(AMOLED_BLACK, 0.8f),
             )
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> darkBase
+        else -> lightBase
     }
 
     SystemBarStyle(
