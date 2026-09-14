@@ -8,8 +8,6 @@ import androidx.compose.ui.unit.sp
 
 private val Sans = FontFamily.Default
 
-// Large text gets tighter tracking and heavier weight so headings read as
-// deliberate rather than as scaled-up body copy; labels stay wide and legible.
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = Sans,

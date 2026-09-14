@@ -16,10 +16,6 @@ val Shapes = Shapes(
 private val GROUP_OUTER = 20.dp
 private val GROUP_INNER = 6.dp
 
-/**
- * Corner shape for a row at [index] of a [count]-row group: the group reads as one
- * slab, with only the outer corners rounded.
- */
 fun groupedShape(index: Int, count: Int): Shape {
     val top = if (index == 0) GROUP_OUTER else GROUP_INNER
     val bottom = if (index == count - 1) GROUP_OUTER else GROUP_INNER

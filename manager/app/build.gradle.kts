@@ -27,8 +27,6 @@ android {
     namespace = "com.rifsxd.ksunext"
 
     defaultConfig {
-        // Upstream-aligned code, used where the manager has to line up with ksud /
-        // the bundled LKM rather than with its own (deliberately inflated) versionCode.
         buildConfigField("int", "UPSTREAM_VERSION_CODE", "$managerBaseVersionCode")
     }
 

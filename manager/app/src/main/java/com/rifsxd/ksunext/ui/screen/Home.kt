@@ -240,9 +240,6 @@ fun HomeScreen(navigator: DestinationsNavigator) {
                 )
             }
 
-            // Pair against the upstream-aligned code: this build's own versionCode is
-            // offset so upstream can never look newer, which would otherwise make the
-            // bundled LKM permanently appear out of date.
             val showLkmUpdate = isManager && lkmMode == true && Natives.isLkmBundled && ksuVersion != BuildConfig.UPSTREAM_VERSION_CODE && !requiresNewKernel && !requiresNewManager
 
             if (showLkmUpdate) {
@@ -374,7 +371,6 @@ private fun ModuleCard(onClick: (() -> Unit)? = null) {
         moduleViewModel.checkUpdate(it).first.isNotEmpty()
     }
 
-    // Flash "Update!" first, then settle on the count so both read.
     var showCount by remember { mutableStateOf(false) }
     LaunchedEffect(moduleUpdateCount) {
         showCount = false

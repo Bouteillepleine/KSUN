@@ -14,8 +14,6 @@ echo ""
 # Export variables for use in find -exec
 export word1 word2 word3
 
-# Spoof the launcher label too - a randomised package id with "KernelSU-Next"
-# still showing on the home screen defeats the point. Override with SPOOF_APP_NAME.
 appname="${SPOOF_APP_NAME:-$(echo "$word3" | sed 's/^./\U&/')}"
 strings_xml="./app/src/main/res/values/strings.xml"
 if [ -f "$strings_xml" ]; then

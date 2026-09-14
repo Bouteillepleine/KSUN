@@ -100,8 +100,6 @@ fun Color.blend(other: Color, ratio: Float): Color {
 private fun ColorScheme.withAccent(accent: AccentPair, darkTheme: Boolean): ColorScheme {
     val a = if (darkTheme) accent.dark else accent.light
 
-    // Containers are blended from the accent toward the palette's base so every
-    // accent lands at a comparable lightness instead of needing hand-tuned pairs.
     return if (darkTheme) {
         copy(
             primary = a,

@@ -37,10 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Shrinks the element slightly while it is pressed. Gives cards the same tactile
- * response buttons already have, without changing their hit target.
- */
 @Composable
 fun Modifier.pressScale(
     interactionSource: InteractionSource,
@@ -61,7 +57,6 @@ fun Modifier.pressScale(
     }
 }
 
-/** A rounded-square tonal plate behind an icon — the recurring "row glyph" of the UI. */
 @Composable
 fun TonalIcon(
     imageVector: ImageVector,
@@ -114,7 +109,6 @@ fun TonalIcon(
     }
 }
 
-/** Small pill used on the hero card and on list rows to carry state. */
 @Composable
 fun StatusChip(
     text: String,
@@ -146,7 +140,6 @@ fun StatusChip(
     }
 }
 
-/** A section label that sits above a group of cards. */
 @Composable
 fun SectionHeader(
     text: String,
@@ -162,7 +155,6 @@ fun SectionHeader(
     )
 }
 
-/** A number that rolls vertically when it changes. */
 @Composable
 fun AnimatedCount(
     count: Int,
@@ -186,14 +178,12 @@ fun AnimatedCount(
     }
 }
 
-/** Diagonal wash used behind hero surfaces. */
 fun heroBrush(base: Color, accent: Color): Brush = Brush.linearGradient(
     0f to base.copy(alpha = 1f),
     0.55f to base,
     1f to accent
 )
 
-/** Column of rows that reads as one slab: rows are spaced by a hairline gap. */
 @Composable
 fun GroupedColumn(
     modifier: Modifier = Modifier,

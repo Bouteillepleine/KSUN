@@ -3,10 +3,6 @@ package com.rifsxd.ksunext.ui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
-/**
- * Accent presets, taken from the Catppuccin Latte (light) and Macchiato (dark)
- * accent ramps so every option stays in the same family as the rest of the palette.
- */
 enum class ThemeAccent(
     val key: String,
     val light: Color,
@@ -35,21 +31,12 @@ enum class ThemeAccent(
     }
 }
 
-/** The light/dark pair actually handed to the theme. */
 data class AccentPair(val light: Color, val dark: Color) {
     fun swatch(darkTheme: Boolean): Color = if (darkTheme) dark else light
 }
 
 private fun clamp(v: Float, min: Float, max: Float) = v.coerceIn(min, max)
 
-/**
- * Derive a light/dark accent pair from any picked colour.
- *
- * The hue is kept exactly as chosen; saturation and value are clamped into the
- * ranges the Catppuccin ramps occupy (deep and saturated for Latte, pastel and
- * bright for Macchiato). Without this a fully saturated pick is unreadable in one
- * theme or the other — e.g. pure yellow on a white surface.
- */
 fun customAccentPair(argb: Int): AccentPair {
     val hsv = FloatArray(3)
     android.graphics.Color.colorToHSV(argb, hsv)
@@ -62,7 +49,6 @@ fun customAccentPair(argb: Int): AccentPair {
     return AccentPair(light, dark)
 }
 
-/** Resolve the stored preference into the pair the theme uses. */
 fun resolveAccent(key: String?, customArgb: Int): AccentPair =
     if (key == ThemeAccent.CUSTOM_KEY) {
         customAccentPair(customArgb)
