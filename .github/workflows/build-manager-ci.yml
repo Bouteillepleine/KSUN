@@ -119,6 +119,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
 
       - name: Download arm64 ksud
         uses: actions/download-artifact@v7
