@@ -19,7 +19,6 @@ val RED = Color(0xFFF44336)               // Red
 val YELLOW = Color(0xFFFFEB3B)            // Yellow
 val ORANGE = Color(0xFFFF9800)            // Orange
 
-// Catppuccin Latte — light scheme roles
 val LATTE_BLUE = Color(0xFF1E66F5)
 val LATTE_ON_BLUE = Color(0xFFFFFFFF)
 val LATTE_BLUE_CONTAINER = Color(0xFFDBE4FE)
@@ -48,7 +47,6 @@ val LATTE_SUBTEXT = Color(0xFF5C5F77)
 val LATTE_OVERLAY = Color(0xFF9CA0B0)
 val LATTE_SURFACE0 = Color(0xFFCCD0DA)
 
-// Catppuccin Macchiato — dark scheme roles
 val MACCHIATO_BLUE = Color(0xFF8AADF4)
 val MACCHIATO_ON_BLUE = Color(0xFF0C2757)
 val MACCHIATO_BLUE_CONTAINER = Color(0xFF2A4278)

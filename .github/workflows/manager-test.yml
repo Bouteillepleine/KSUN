@@ -1,10 +1,5 @@
 name: Build Manager (Test)
 
-# The stock manager CI only fires on `dev`, so fork work sitting on `Test` never
-# gets built. This is a thin caller rather than an edit to build-manager-ci.yml,
-# so that file stays identical to upstream and keeps rebasing cleanly.
-# Signing follows the same rule as upstream: with the KEYSTORE secret set the APK
-# is release-signed, without it apksign falls back to a throwaway debug key.
 
 on:
   push:

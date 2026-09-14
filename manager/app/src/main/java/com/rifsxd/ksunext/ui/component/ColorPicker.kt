@@ -40,11 +40,6 @@ import java.util.Locale
 
 private fun hsvColor(h: Float, s: Float, v: Float) = Color.hsv(h, s, v)
 
-/**
- * Dialog with a saturation/value field plus a hue strip. Deliberately hand-drawn
- * rather than pulling in a picker dependency — it is two Canvases and a drag
- * handler, and it keeps the APK free of another library.
- */
 @Composable
 fun ColorPickerDialog(
     initial: Color,
@@ -87,7 +82,6 @@ fun ColorPickerDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                // saturation (x) / value (y) field for the current hue
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -131,7 +125,6 @@ fun ColorPickerDialog(
                     }
                 }
 
-                // hue strip
                 Canvas(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -170,7 +163,6 @@ fun ColorPickerDialog(
     )
 }
 
-/** Swatch showing the full hue circle, used to open the custom picker. */
 @Composable
 fun RainbowSwatch(
     selected: Boolean,
