@@ -292,7 +292,11 @@ class MainActivity : ComponentActivity() {
                         val uris = zipUri!!
                         val component = intent?.component?.className
                         val flashIt = when {
+                            // explicit legacy entry point
                             component?.endsWith("FlashAnyKernel") == true -> FlashIt.FlashAnyKernel(uris.first())
+                            // auto-detect: single AnyKernel3 zip flashes as kernel, anything else as module(s)
+                            uris.size == 1 && ZipUtils.isAnyKernel3Zip(applicationContext, uris.first()) ->
+                                FlashIt.FlashAnyKernel(uris.first())
                             else -> FlashIt.FlashModules(uris)
                         }
                         
