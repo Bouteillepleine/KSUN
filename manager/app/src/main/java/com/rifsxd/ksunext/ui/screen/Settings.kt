@@ -99,10 +99,10 @@ fun SettingScreen(navigator: DestinationsNavigator) {
     }
     val loadingDialog = rememberLoadingDialog()
 
-    var isUnrooted by remember { mutableStateOf(false) }
+    var isUnrooted by remember { mutableStateOf(!rootAvailable()) }
 
     LaunchedEffect(Unit) {
-        isUnrooted =  Natives.checkKsuDriver() is Natives.KsuDriverStatus.NoDriver
+        isUnrooted = !rootAvailable()
     }
 
     val exportBugreportLauncher = rememberLauncherForActivityResult(
