@@ -288,7 +288,6 @@
   <string name="sulog_entry_description_ioctl_grant_root">Przyznano dostęp do roota przez KernelSU ioctl</string>
   <string name="sulog_entry_title_daemon_restarted">Deamon zrestartowany</string>
   <string name="sulog_entry_title_dropped_events">Porzucone zdarzenia</string>
-  <string name="uapi_mismatch">Wersja uapi (%1$d) menedżera i uapi (%2$d) sterownika KernelSU nie pasują do siebie.</string>
   <string name="require_manager_version">Aktualna wersja KernelSU-Next (wbudowana w jądrze) %1$d jest zbyt niska, aby menedżer działał poprawnie. Zaktualizuj do wersji %2$d lub wyższej!</string>
   <string name="profile_flags">Flagi</string>
   <string name="profile_flags_desc_no_new_privs">Zapobiegaj dalszej eskalacji uprawnień przez KernelSU w kontekście tego profilu głównego.</string>

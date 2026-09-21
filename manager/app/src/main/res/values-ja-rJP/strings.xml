@@ -288,7 +288,6 @@
   <string name="sulog_entry_description_ioctl_grant_root">KernelSUのioctl経由によるroot権限付与</string>
   <string name="sulog_entry_title_daemon_restarted">デーモン再起動</string>
   <string name="sulog_entry_title_dropped_events">欠落したイベント</string>
-  <string name="uapi_mismatch">マネージャーのuapiのバージョン(%1$d)とKernelSUドライバーのuapiのバージョン(%2$d)が異なります。</string>
   <string name="require_manager_version">このKernelSUマネージャーのバージョンは%1$dと低く適切に動作しません。バージョン%2$d以上に更新して下さい！</string>
   <string name="profile_flags">フラグ</string>
   <string name="profile_flags_desc_no_new_privs">このルートプロファイルのコンテキスト内からKernelSUを介したさらなる権限昇格を防止します。</string>

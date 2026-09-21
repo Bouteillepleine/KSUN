@@ -288,7 +288,6 @@
   <string name="sulog_entry_description_ioctl_grant_root">已透過 KernelSU ioctl 授予 Root 權限</string>
   <string name="sulog_entry_title_daemon_restarted">Daemon 已重新啟動</string>
   <string name="sulog_entry_title_dropped_events">已捨棄事件</string>
-  <string name="uapi_mismatch">管理器的 uapi 版本 (%1$d) 與目前 KernelSU 驅動的 uapi 版本 (%2$d) 不相符。</string>
   <string name="require_manager_version">當前 KernelSU 管理器版本 %1$d 過低，KernelSU 無法正常工作。請將 KernelSU 管理器版本升級至 %2$d 或以上！</string>
   <string name="profile_flags">標誌</string>
   <string name="profile_flags_desc_no_new_privs">禁止從此 Root Profile 的上下文中通過 KernelSU 進一步提升權限。</string>

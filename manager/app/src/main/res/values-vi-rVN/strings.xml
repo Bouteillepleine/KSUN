@@ -288,7 +288,6 @@
   <string name="sulog_entry_description_ioctl_grant_root">Đã cấp quyền thông qua KernelSU iotcl</string>
   <string name="sulog_entry_title_daemon_restarted">Đã khởi động lại Daemon</string>
   <string name="sulog_entry_title_dropped_events">Sự kiện bị hủy</string>
-  <string name="uapi_mismatch">Phiên bản uapi của trình quản lý (%1$d) và phiên bản uapi của trình điều khiển KernelSU (%2$d) không khớp.</string>
   <string name="require_manager_version">Phiên bản trình quản lý KernelSU hiện tại %1$d quá thấp để KernelSU hoạt động đúng cách. Vui lòng nâng cấp trình quản lý lên phiên bản %2$d hoặc cao hơn!</string>
   <string name="profile_flags">Cờ</string>
   <string name="profile_flags_desc_no_new_privs">Ngăn chặn việc leo thang đặc quyền hơn nữa thông qua KernelSU từ bên trong phạm vi cấu hình root này.</string>

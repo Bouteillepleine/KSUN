@@ -288,7 +288,6 @@
   <string name="sulog_entry_description_ioctl_grant_root">Accesso root consentito tramite KernelSU ioctl</string>
   <string name="sulog_entry_title_daemon_restarted">Demone riavviato</string>
   <string name="sulog_entry_title_dropped_events">Eventi scartati</string>
-  <string name="uapi_mismatch">Mancata corrispondenza tra la versione uapi del manager (%1$d) e la versione uapi del driver KernelSU (%2$d).</string>
   <string name="require_manager_version">La versione attualmente installata del manager KernelSU %1$d è troppo vecchia e KernelSU non può funzionare correttamente. Si prega di aggiornare alla versione %2$d o successiva!</string>
   <string name="profile_flags">Segnalazioni</string>
   <string name="profile_flags_desc_no_new_privs">Evitare un\'ulteriore escalation dei privilegi tramite KernelSU nel contesto di questo profilo di root.</string>
