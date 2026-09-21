@@ -664,12 +664,7 @@ private fun TopBar(
 
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        isSpinning = true
-        rotationTarget += 360f * 6
-    }
-
-        TopAppBar(
+    TopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
