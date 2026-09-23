@@ -381,8 +381,10 @@ private fun ModuleCard(onClick: (() -> Unit)? = null) {
     val count = getModuleCount()
     val moduleViewModel: ModuleViewModel = viewModel()
 
-    val moduleUpdateCount = moduleViewModel.moduleList.count {
-        moduleViewModel.checkUpdate(it).first.isNotEmpty()
+    val moduleUpdateCount = remember(moduleViewModel.moduleList) {
+        moduleViewModel.moduleList.count { module ->
+            module.enabled && (moduleViewModel.checkUpdate(module).first.isNotEmpty())
+        }
     }
 
     var showCount by remember { mutableStateOf(false) }
@@ -995,22 +997,92 @@ private fun InfoCardRow(
     }
 }
 
+private data class HomeInfoSnapshot(
+    val managerVersion: Pair<String, Long> = "" to 0L,
+    val managerUAPIVersion: Int = 0,
+    val managerAppId: Int = 0,
+    val hookMode: String? = null,
+    val metaModule: String? = null,
+    val metaInfo: ModuleViewModel.ModuleInfo? = null,
+    val suSFS: String? = null,
+    val suSFSVersion: String? = null,
+    val suSFSVariant: String? = null,
+    val zygiskEnabled: Boolean = false,
+    val zygiskInfo: ModuleViewModel.ModuleInfo? = null,
+    val unameRelease: String = "",
+    val unameMachine: String = "",
+    val seccompStatus: String = "Unavailable",
+)
+
+private fun buildHomeInfoSnapshot(
+    context: Context,
+    ksuVersion: Int?,
+    moduleList: List<ModuleViewModel.ModuleInfo>,
+): HomeInfoSnapshot {
+    val managerVersion = getManagerVersion(context)
+    val managerUAPIVersion = Natives.managerUAPIVersion
+    val managerAppId = Natives.getManagerAppid()
+    val hookMode = if (ksuVersion == null) null else {
+        Natives.getHookMode().takeUnless { it.isNullOrBlank() } ?: "Unavailable"
+    }
+    val metaModule = if (ksuVersion == null) null else getMetaModule()
+    val metaInfo = if (metaModule == null) null else moduleList.firstOrNull { it.isMetaModule }
+    val suSFS = if (ksuVersion == null) null else getSuSFS()
+    val suSFSVersion = if (suSFS == "Supported" && ksuVersion != null) getSuSFSVersion() else null
+    val suSFSVariant = if (suSFS == "Supported" && ksuVersion != null) getSuSFSVariant() else null
+    val zygiskEnabled = if (ksuVersion == null) false else Natives.isZygiskEnabled()
+    val zygiskInfo = if (!zygiskEnabled) null else moduleList.firstOrNull { it.isZygisk && it.enabled }
+    val uname = kotlin.runCatching { Os.uname() }.getOrNull()
+    val statusInt = kotlin.runCatching { Os.prctl(21, 0, 0, 0, 0) }.getOrDefault(-1)
+    val seccompStatus = when (statusInt) {
+        -1 -> "Unavailable"
+        0 -> "Disabled"
+        1 -> "Strict"
+        2 -> "Filter"
+        else -> "Unknown"
+    }
+
+    return HomeInfoSnapshot(
+        managerVersion = managerVersion,
+        managerUAPIVersion = managerUAPIVersion,
+        managerAppId = managerAppId,
+        hookMode = hookMode,
+        metaModule = metaModule,
+        metaInfo = metaInfo,
+        suSFS = suSFS,
+        suSFSVersion = suSFSVersion,
+        suSFSVariant = suSFSVariant,
+        zygiskEnabled = zygiskEnabled,
+        zygiskInfo = zygiskInfo,
+        unameRelease = uname?.release.orEmpty(),
+        unameMachine = uname?.machine.orEmpty(),
+        seccompStatus = seccompStatus,
+    )
+}
+
 @Composable
 private fun InfoCard(autoExpand: Boolean = false) {
     val context = LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("settings", Context.MODE_PRIVATE) }
 
-    val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-
-    val isManager = Natives.isManager
-    val ksuVersion = if (isManager) Natives.version else null
+    val isManager = remember { Natives.isManager }
+    val ksuVersion = remember(isManager) { if (isManager) Natives.version else null }
 
     var expanded by rememberSaveable { mutableStateOf(false) }
-
-    val developerOptionsEnabled = prefs.getBoolean("enable_developer_options", false)
+    val developerOptionsEnabled = remember(prefs) { prefs.getBoolean("enable_developer_options", false) }
 
     LaunchedEffect(autoExpand) {
         if (autoExpand) {
             expanded = true
+        }
+    }
+
+    val moduleViewModel: ModuleViewModel = viewModel()
+    var homeInfo by remember { mutableStateOf(HomeInfoSnapshot()) }
+
+    LaunchedEffect(ksuVersion, moduleViewModel.moduleList) {
+        homeInfo = withContext(Dispatchers.IO) {
+            buildHomeInfoSnapshot(context, ksuVersion, moduleViewModel.moduleList)
         }
     }
 
@@ -1021,12 +1093,12 @@ private fun InfoCard(autoExpand: Boolean = false) {
                 .padding(start = 18.dp, top = 18.dp, end = 18.dp, bottom = 10.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            val managerVersion = getManagerVersion(context)
-            val managerUAPIVersion = Natives.managerUAPIVersion
+            val managerVersion = homeInfo.managerVersion
+            val managerUAPIVersion = homeInfo.managerUAPIVersion
             InfoCardRow(
                 label = stringResource(R.string.home_manager_version),
                 content = if (developerOptionsEnabled) {
-                    "${managerVersion.first} (${managerVersion.second}-${managerUAPIVersion}) | UID: ${Natives.getManagerAppid()}"
+                    "${managerVersion.first} (${managerVersion.second}-${managerUAPIVersion}) | UID: ${homeInfo.managerAppId}"
                 } else {
                     "${managerVersion.first} (${managerVersion.second}-${managerUAPIVersion})"
                 },
@@ -1034,9 +1106,7 @@ private fun InfoCard(autoExpand: Boolean = false) {
             )
 
             if (ksuVersion != null) {
-                val hookMode = Natives.getHookMode()
-                    .takeUnless { it.isNullOrBlank() }
-                    ?: stringResource(R.string.unavailable)
+                val hookMode = homeInfo.hookMode ?: stringResource(R.string.unavailable)
 
                 InfoCardRow(
                     label = stringResource(R.string.hook_mode),
@@ -1044,9 +1114,8 @@ private fun InfoCard(autoExpand: Boolean = false) {
                     icon = Icons.Filled.Phishing
                 )
 
-                val metaModule = getMetaModule()
-                val moduleViewModel: ModuleViewModel = viewModel()
-                val metaInfo = moduleViewModel.moduleList.firstOrNull { it.isMetaModule }
+                val metaModule = homeInfo.metaModule
+                val metaInfo = homeInfo.metaInfo
                 val metaDetail = if (metaInfo != null) " | ${metaInfo.name} | ${metaInfo.version}" else ""
                 InfoCardRow(
                     label = stringResource(R.string.home_metamodule_status),
@@ -1061,17 +1130,17 @@ private fun InfoCard(autoExpand: Boolean = false) {
                     icon = Icons.Filled.SettingsSuggest
                 )
 
-                val suSFS = getSuSFS()
+                val suSFS = homeInfo.suSFS
                 if (suSFS == "Supported") {
                     InfoCardRow(
                         label = stringResource(R.string.home_susfs_version),
-                        content = "${stringResource(R.string.supported)} | ${getSuSFSVersion()} (${getSuSFSVariant()})",
+                        content = "${stringResource(R.string.supported)} | ${homeInfo.suSFSVersion ?: stringResource(R.string.unavailable)} (${homeInfo.suSFSVariant ?: stringResource(R.string.unavailable)})",
                         painter = painterResource(R.drawable.ic_sus)
                     )
                 }
 
-                if (Natives.isZygiskEnabled()) {
-                    val zygiskInfo = moduleViewModel.moduleList.firstOrNull { it.isZygisk && it.enabled }
+                if (homeInfo.zygiskEnabled) {
+                    val zygiskInfo = homeInfo.zygiskInfo
                     val zygiskDetail = if (zygiskInfo != null) " | ${zygiskInfo.name} | ${zygiskInfo.version}" else ""
                     InfoCardRow(
                         label = stringResource(R.string.zygisk_status),
@@ -1086,11 +1155,10 @@ private fun InfoCard(autoExpand: Boolean = false) {
                 enter = fadeIn() + expandVertically(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                val uname = Os.uname()
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     InfoCardRow(
                         label = stringResource(R.string.home_kernel),
-                        content = "${uname.release} (${uname.machine})",
+                        content = "${homeInfo.unameRelease} (${homeInfo.unameMachine})",
                         painter = painterResource(R.drawable.ic_linux)
                     )
 
@@ -1112,21 +1180,9 @@ private fun InfoCard(autoExpand: Boolean = false) {
                         icon = Icons.Filled.Security
                     )
 
-                    val statusInt = kotlin.runCatching {
-                        Os.prctl(21, 0, 0, 0, 0)
-                    }.getOrDefault(-1)
-
-                    val seccompStatus = when (statusInt) {
-                        -1 -> stringResource(R.string.seccomp_status_not_supported)
-                        0 -> stringResource(R.string.seccomp_status_disabled)
-                        1 -> stringResource(R.string.seccomp_status_strict)
-                        2 -> stringResource(R.string.seccomp_status_filter)
-                        else -> stringResource(R.string.seccomp_status_unknown)
-                    }
-
                     InfoCardRow(
                         label = stringResource(R.string.home_seccomp_status),
-                        content = seccompStatus,
+                        content = homeInfo.seccompStatus,
                         icon = Icons.Filled.LocalPolice
                     )
                 }
