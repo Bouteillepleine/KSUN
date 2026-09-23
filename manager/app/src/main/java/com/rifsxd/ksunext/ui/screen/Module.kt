@@ -165,7 +165,7 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
     val listState = rememberLazyListState()
 
     val scrollState = LocalScrollState.current
-    val isNavBarHidden = scrollState?.isScrollingDown?.value ?: false
+    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
 
     Scaffold(
@@ -492,10 +492,12 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
                     onClickModule = { id, name, hasWebUi ->
                         if (hasWebUi) {
                             webUILauncher.launch(
-                                Intent(context, WebUIActivity::class.java)
-                                    .setData("kernelsu://webui/$id".toUri())
-                                    .putExtra("id", id)
-                                    .putExtra("name", name)
+                                Intent(context, WebUIActivity::class.java).apply {
+                                    putExtra("is_internal_transition", true)
+                                    setData("kernelsu://webui/$id".toUri())
+                                    putExtra("id", id)
+                                    putExtra("name", name)
+                                }
                             )
                         }
                     },
@@ -679,15 +681,20 @@ private fun ModuleList(
             failedRestore.format(module.name)
         }
     }
+    val scrollStateOuter = LocalScrollState.current
+    val hapticOuter = androidx.compose.ui.platform.LocalHapticFeedback.current
     PullToRefreshBox(
         modifier = boxModifier,
         isRefreshing = viewModel.isRefreshing,
         onRefresh = {
+            if (scrollStateOuter?.isHapticsEnabled?.value == true) {
+                hapticOuter.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+            }
             viewModel.fetchModuleList()
         }
     ) {
         val scrollState = LocalScrollState.current
-        val isNavBarHidden = scrollState?.isScrollingDown?.value ?: false
+        val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
         val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
 
         LazyColumn(

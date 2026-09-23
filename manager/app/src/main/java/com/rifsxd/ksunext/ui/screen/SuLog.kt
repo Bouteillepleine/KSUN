@@ -185,7 +185,7 @@ fun SuLogScreen(
                         .fillMaxSize()
                 ) {
                     val scrollState = LocalScrollState.current
-                    val isNavBarHidden = scrollState?.isScrollingDown?.value ?: false
+                    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
                     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
 
                     LazyColumn(
@@ -507,9 +507,17 @@ fun SulogScreen(navigator: DestinationsNavigator) {
         visibleEntries = uiState.visibleEntries,
         errorMessage = uiState.errorMessage,
     )
+    val scrollStateOuter = LocalScrollState.current
+    val hapticOuter = androidx.compose.ui.platform.LocalHapticFeedback.current
+
     val actions = SulogActions(
         onBack = dropUnlessResumed { navigator.popBackStack() },
-        onRefresh = { viewModel.refreshLatest(refreshing = true) },
+        onRefresh = {
+            if (scrollStateOuter?.isHapticsEnabled?.value == true) {
+                hapticOuter.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+            }
+            viewModel.refreshLatest(refreshing = true)
+        },
         onEnableSulog = viewModel::enableSulog,
         onCleanFile = viewModel::cleanFile,
         onSearchTextChange = viewModel::setSearchText,

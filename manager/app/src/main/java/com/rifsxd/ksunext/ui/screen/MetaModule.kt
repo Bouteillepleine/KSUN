@@ -100,11 +100,13 @@ fun MetaModuleScreen(navigator: DestinationsNavigator) {
     val snackBarHost = LocalSnackbarHost.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val scrollStateOuter = LocalScrollState.current
+    val hapticOuter = androidx.compose.ui.platform.LocalHapticFeedback.current
 
     val isManager = Natives.isManager
     val ksuVersion = if (isManager) Natives.version else null
     val scrollState = LocalScrollState.current
-    val isNavBarHidden = scrollState?.isScrollingDown?.value ?: false
+    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
     val modulesJsonUrl = "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next-Modules-Repo/refs/heads/main/meta_modules.json"
 
@@ -251,6 +253,9 @@ fun MetaModuleScreen(navigator: DestinationsNavigator) {
                         .padding(paddingValues),
                     isRefreshing = isRefreshing,
                     onRefresh = {
+                        if (scrollStateOuter?.isHapticsEnabled?.value == true) {
+                            hapticOuter.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        }
                         scope.launch {
                             moduleState = MetaModuleState.Loading
                             loadModules()
