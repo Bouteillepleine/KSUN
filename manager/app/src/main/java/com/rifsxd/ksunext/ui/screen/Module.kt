@@ -48,6 +48,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import com.rifsxd.ksunext.ui.LocalNavBarEnabled
 import com.rifsxd.ksunext.ui.LocalScrollState
 import com.rifsxd.ksunext.ui.rememberScrollConnection
 import androidx.compose.ui.res.stringResource
@@ -165,7 +166,8 @@ fun ModuleScreen(navigator: DestinationsNavigator) {
     val listState = rememberLazyListState()
 
     val scrollState = LocalScrollState.current
-    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
+    val navBarEnabled = LocalNavBarEnabled.current
+    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (navBarEnabled?.value == false)
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
 
     Scaffold(
@@ -681,20 +683,19 @@ private fun ModuleList(
             failedRestore.format(module.name)
         }
     }
-    val scrollStateOuter = LocalScrollState.current
-    val hapticOuter = androidx.compose.ui.platform.LocalHapticFeedback.current
+
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     PullToRefreshBox(
         modifier = boxModifier,
         isRefreshing = viewModel.isRefreshing,
         onRefresh = {
-            if (scrollStateOuter?.isHapticsEnabled?.value == true) {
-                hapticOuter.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-            }
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
             viewModel.fetchModuleList()
         }
     ) {
         val scrollState = LocalScrollState.current
-        val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
+        val navBarEnabled = LocalNavBarEnabled.current
+        val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (navBarEnabled?.value == false)
         val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
 
         LazyColumn(
@@ -813,6 +814,7 @@ fun ModuleItem(
     onExpandToggle: () -> Unit,
 ) {
     val viewModel = viewModel<ModuleViewModel>()
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     var showMenu by remember { mutableStateOf(false) }
     var showShortcutDialog by remember { mutableStateOf(false) }
     var shortcutType by remember { mutableStateOf("") }
@@ -840,8 +842,6 @@ fun ModuleItem(
         return p
     }
     
-    val haptic = LocalHapticFeedback.current
-
     val context = LocalContext.current
 
     if (showShortcutDialog) {
@@ -962,8 +962,8 @@ fun ModuleItem(
                 indication = LocalIndication.current,
                 onClick = onExpandToggle,
                 onLongClick = {
-                    showMenu = true
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    showMenu = true
                 }
             )
     ) {
