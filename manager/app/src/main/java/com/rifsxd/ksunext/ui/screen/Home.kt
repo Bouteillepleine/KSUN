@@ -82,6 +82,7 @@ import com.rifsxd.ksunext.ui.webui.WebUIActivity
 import com.rifsxd.ksunext.ui.util.restartActivity
 import com.rifsxd.ksunext.ui.util.module.LatestVersionInfo
 import com.rifsxd.ksunext.ui.viewmodel.ModuleViewModel
+import com.rifsxd.ksunext.ui.LocalNavBarEnabled
 import com.rifsxd.ksunext.ui.LocalScrollState 
 import com.rifsxd.ksunext.ui.screen.BottomBarDestination
 import com.rifsxd.ksunext.ui.trackScroll 
@@ -113,7 +114,8 @@ fun HomeScreen(navigator: DestinationsNavigator) {
     val bottomBarScrollState = LocalScrollState.current
 
     val scrollState = LocalScrollState.current
-    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (scrollState?.isNavBarEnabled?.value == false)
+    val navBarEnabled = LocalNavBarEnabled.current
+    val isNavBarHidden = (scrollState?.isScrollingDown?.value ?: false) || (navBarEnabled?.value == false)
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + if (isNavBarHidden) 0.dp else 112.dp
     
     // Create scroll connection for bottom bar
@@ -143,7 +145,7 @@ fun HomeScreen(navigator: DestinationsNavigator) {
                         restoreState = true
                     }
                 },
-                navBarEnabled = bottomBarScrollState?.isNavBarEnabled?.value ?: true,
+                navBarEnabled = LocalNavBarEnabled.current?.value ?: true,
                 scrollBehavior = scrollBehavior
             )
         },
