@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material.icons.filled.Colorize
 import com.rifsxd.ksunext.ui.theme.DEFAULT_CUSTOM_ARGB
+import com.rifsxd.ksunext.ui.theme.customAccentPair
 import com.rifsxd.ksunext.ui.component.ColorPickerDialog
 import com.rifsxd.ksunext.ui.component.SwitchItem
 import com.rifsxd.ksunext.ui.util.refreshActivity
@@ -214,7 +215,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 AccentPicker(
                     selected = accent,
                     selectedKey = accentKey,
-                    customColor = Color(customArgb),
+                    customColor = customAccentPair(customArgb).swatch(isSystemInDarkTheme()),
                     dimmed = dynamicColorEnabled,
                     onSelect = { picked ->
                         if (dynamicColorEnabled) {

@@ -10,6 +10,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 
@@ -97,22 +98,25 @@ fun Color.blend(other: Color, ratio: Float): Color {
     )
 }
 
+private fun onAccent(a: Color): Color =
+    if (a.luminance() > 0.45f) Color.Black.copy(alpha = 0.87f) else Color.White
+
 private fun ColorScheme.withAccent(accent: AccentPair, darkTheme: Boolean): ColorScheme {
     val a = if (darkTheme) accent.dark else accent.light
 
     return if (darkTheme) {
         copy(
             primary = a,
-            onPrimary = a.blend(Color.Black, 0.78f),
+            onPrimary = onAccent(a),
             primaryContainer = a.blend(MACCHIATO_BASE, 0.68f),
             onPrimaryContainer = a.blend(Color.White, 0.72f),
-            secondary = a.blend(MACCHIATO_LAVENDER, 0.45f),
-            onSecondary = a.blend(Color.Black, 0.78f),
-            secondaryContainer = a.blend(MACCHIATO_LAVENDER, 0.45f).blend(MACCHIATO_BASE, 0.62f),
+            secondary = a.blend(MACCHIATO_LAVENDER, 0.18f),
+            onSecondary = onAccent(a),
+            secondaryContainer = a.blend(MACCHIATO_LAVENDER, 0.18f).blend(MACCHIATO_BASE, 0.62f),
             onSecondaryContainer = a.blend(Color.White, 0.78f),
-            tertiary = a.blend(MACCHIATO_TEAL, 0.55f),
-            onTertiary = a.blend(Color.Black, 0.80f),
-            tertiaryContainer = a.blend(MACCHIATO_TEAL, 0.55f).blend(MACCHIATO_BASE, 0.66f),
+            tertiary = a.blend(MACCHIATO_TEAL, 0.22f),
+            onTertiary = onAccent(a),
+            tertiaryContainer = a.blend(MACCHIATO_TEAL, 0.22f).blend(MACCHIATO_BASE, 0.66f),
             onTertiaryContainer = a.blend(Color.White, 0.78f),
             surfaceTint = a,
             inversePrimary = accent.light
@@ -120,16 +124,16 @@ private fun ColorScheme.withAccent(accent: AccentPair, darkTheme: Boolean): Colo
     } else {
         copy(
             primary = a,
-            onPrimary = Color.White,
+            onPrimary = onAccent(a),
             primaryContainer = a.blend(LATTE_BASE, 0.80f),
             onPrimaryContainer = a.blend(Color.Black, 0.62f),
-            secondary = a.blend(LATTE_LAVENDER, 0.45f),
-            onSecondary = Color.White,
-            secondaryContainer = a.blend(LATTE_LAVENDER, 0.45f).blend(LATTE_BASE, 0.82f),
+            secondary = a.blend(LATTE_LAVENDER, 0.18f),
+            onSecondary = onAccent(a),
+            secondaryContainer = a.blend(LATTE_LAVENDER, 0.18f).blend(LATTE_BASE, 0.82f),
             onSecondaryContainer = a.blend(Color.Black, 0.66f),
-            tertiary = a.blend(LATTE_TEAL, 0.55f),
-            onTertiary = Color.White,
-            tertiaryContainer = a.blend(LATTE_TEAL, 0.55f).blend(LATTE_BASE, 0.84f),
+            tertiary = a.blend(LATTE_TEAL, 0.22f),
+            onTertiary = onAccent(a),
+            tertiaryContainer = a.blend(LATTE_TEAL, 0.22f).blend(LATTE_BASE, 0.84f),
             onTertiaryContainer = a.blend(Color.Black, 0.68f),
             surfaceTint = a,
             inversePrimary = accent.dark

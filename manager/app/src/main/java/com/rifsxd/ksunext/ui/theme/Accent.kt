@@ -44,8 +44,8 @@ fun customAccentPair(argb: Int): AccentPair {
     val s = hsv[1]
     val v = hsv[2]
 
-    val light = Color.hsv(h, clamp(s, 0.55f, 0.95f), clamp(v, 0.62f, 0.92f))
-    val dark = Color.hsv(h, clamp(s * 0.6f, 0.25f, 0.60f), clamp(maxOf(v, 0.88f), 0.88f, 1.0f))
+    val light = Color.hsv(h, clamp(s, 0.35f, 1.0f), clamp(v, 0.45f, 0.85f))
+    val dark = Color.hsv(h, clamp(s, 0.30f, 0.95f), clamp(v, 0.55f, 1.0f))
     return AccentPair(light, dark)
 }
 
