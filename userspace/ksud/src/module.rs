@@ -4,7 +4,7 @@ use crate::{
     assets, defs, ksucalls, metamodule,
     restorecon::{restore_syscon, setsyscon},
     risk::{
-        contains_risk, is_risk_detection_enabled, print_risk_block, print_risk_pause_prompt,
+        contains_risk_in_module, is_risk_detection_enabled, print_risk_block, print_risk_pause_prompt,
         print_risk_timeout_block, RiskSeverity,
     },
     sepolicy,
@@ -645,8 +645,7 @@ fn install_module_to_system(zip: &str) -> Result<()> {
     let zip_path = zip_path.canonicalize()?;
     zip_extract_file_to_memory(&zip_path, &entry_path, &mut buffer)?;
 
-    let module_prop_text = String::from_utf8_lossy(&buffer);
-    if is_risk_detection_enabled() && let Some(risk_match) = contains_risk(&module_prop_text) {
+    if is_risk_detection_enabled() && let Some(risk_match) = contains_risk_in_module(&zip_path) {
         match risk_match.severity {
             RiskSeverity::Low | RiskSeverity::Medium => {
                 print_risk_pause_prompt(risk_match.severity, &risk_match.reason);
