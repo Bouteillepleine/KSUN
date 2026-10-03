@@ -327,4 +327,6 @@
     <string name="settings_app_lock_no_credential">Secure screen lock required.</string>
     <string name="biometric_prompt_subtitle">Unlock Manager</string>
     <string name="biometric_prompt_subtitle_module">Unlock %1$s</string>
+    <string name="enable_risk">Enable risk detection</string>
+    <string name="enable_risk_summary">Enable install-time risk detection for modules.</string>
 </resources>
