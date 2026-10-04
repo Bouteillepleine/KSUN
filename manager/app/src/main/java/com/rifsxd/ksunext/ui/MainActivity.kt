@@ -222,7 +222,6 @@ class MainActivity : FragmentActivity() {
     var navBarEnabled = mutableStateOf(true)
     var backgroundState = mutableStateOf(BackgroundSettings())
     var surfaceAlphaState = mutableStateOf(1f)
-    private var prefsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
     private val handler = Handler(Looper.getMainLooper())
 
     val moduleViewModel: ModuleViewModel by viewModels()
@@ -288,15 +287,6 @@ class MainActivity : FragmentActivity() {
 
         if(intent != null)
             handleIntent(intent)
-
-        prefsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
-            when (key) {
-                "background_uri", "background_fill_screen", "background_dim" ->
-                    backgroundState.value = readBackgroundSettings(p)
-                "ui_card_alpha" -> surfaceAlphaState.value = p.getInt("ui_card_alpha", 100) / 100f
-            }
-        }
-        prefsInit.registerOnSharedPreferenceChangeListener(prefsListener)
 
         setContent { Box(modifier = Modifier.fillMaxSize()) {
             KernelSUTheme(
@@ -692,6 +682,41 @@ class MainActivity : FragmentActivity() {
             prefs.edit().putBoolean("enable_dynamic_color", enabled).apply()
         } catch (_: Exception) {}
         dynamicColorState.value = enabled
+    }
+
+    fun setAppBackground(uri: String?) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().apply {
+                if (uri == null) remove("background_uri") else putString("background_uri", uri)
+                apply()
+            }
+        } catch (_: Exception) {}
+        backgroundState.value = backgroundState.value.copy(uri = uri)
+    }
+
+    fun setBackgroundFillScreen(enabled: Boolean) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().putBoolean("background_fill_screen", enabled).apply()
+        } catch (_: Exception) {}
+        backgroundState.value = backgroundState.value.copy(fillScreen = enabled)
+    }
+
+    fun setBackgroundDim(percent: Int) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().putInt("background_dim", percent).apply()
+        } catch (_: Exception) {}
+        backgroundState.value = backgroundState.value.copy(dimAlpha = percent / 100f)
+    }
+
+    fun setCardAlpha(percent: Int) {
+        try {
+            val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+            prefs.edit().putInt("ui_card_alpha", percent).apply()
+        } catch (_: Exception) {}
+        surfaceAlphaState.value = percent / 100f
     }
 
     fun setAmoledMode(enabled: Boolean) {

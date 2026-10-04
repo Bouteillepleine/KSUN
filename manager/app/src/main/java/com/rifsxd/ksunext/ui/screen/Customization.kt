@@ -193,6 +193,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 }
             }
 
+            val bgActivity = LocalContext.current as? MainActivity
             var backgroundUri by rememberSaveable { mutableStateOf(prefs.getString("background_uri", null)) }
             var backgroundFill by rememberSaveable { mutableStateOf(prefs.getBoolean("background_fill_screen", true)) }
             var backgroundDim by rememberSaveable { mutableStateOf(prefs.getInt("background_dim", 0)) }
@@ -207,11 +208,11 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     ?: return@rememberLauncherForActivityResult
                 backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
                 val firstPick = backgroundUri == null && cardAlpha == 100
-                prefs.edit {
-                    putString("background_uri", stored)
-                    if (firstPick) putInt("ui_card_alpha", 75)
+                bgActivity?.setAppBackground(stored)
+                if (firstPick) {
+                    cardAlpha = 75
+                    bgActivity?.setCardAlpha(75)
                 }
-                if (firstPick) cardAlpha = 75
                 backgroundUri = stored
             }
 
@@ -228,9 +229,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     if (backgroundUri != null) {
                         IconButton(onClick = {
                             backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
-                            prefs.edit {
-                                remove("background_uri")
-                            }
+                            bgActivity?.setAppBackground(null)
                             backgroundUri = null
                         }) {
                             Icon(Icons.Filled.Delete, stringResource(R.string.settings_background_clear))
@@ -251,7 +250,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     summary = stringResource(R.string.settings_background_fill_summary),
                     checked = backgroundFill
                 ) {
-                    prefs.edit { putBoolean("background_fill_screen", it) }
+                    bgActivity?.setBackgroundFillScreen(it)
                     backgroundFill = it
                 }
 
@@ -261,7 +260,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     value = backgroundDim,
                     onValueChange = {
                         backgroundDim = it
-                        prefs.edit { putInt("background_dim", it) }
+                        bgActivity?.setBackgroundDim(it)
                     }
                 )
 
@@ -271,7 +270,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     value = cardAlpha,
                     onValueChange = {
                         cardAlpha = it
-                        prefs.edit { putInt("ui_card_alpha", it) }
+                        bgActivity?.setCardAlpha(it)
                     }
                 )
             }
