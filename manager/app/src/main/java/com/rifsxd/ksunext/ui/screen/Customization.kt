@@ -206,9 +206,12 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 val stored = copyBackgroundToAppStorage(context, uri, mime)
                     ?: return@rememberLauncherForActivityResult
                 backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
+                val firstPick = backgroundUri == null && cardAlpha == 100
                 prefs.edit {
                     putString("background_uri", stored)
+                    if (firstPick) putInt("ui_card_alpha", 75)
                 }
+                if (firstPick) cardAlpha = 75
                 backgroundUri = stored
             }
 
