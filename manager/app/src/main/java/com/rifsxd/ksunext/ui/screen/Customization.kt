@@ -194,7 +194,6 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
             }
 
             var backgroundUri by rememberSaveable { mutableStateOf(prefs.getString("background_uri", null)) }
-            var backgroundIsVideo by rememberSaveable { mutableStateOf(prefs.getBoolean("background_is_video", false)) }
             var backgroundFill by rememberSaveable { mutableStateOf(prefs.getBoolean("background_fill_screen", true)) }
             var backgroundDim by rememberSaveable { mutableStateOf(prefs.getInt("background_dim", 0)) }
             var cardAlpha by rememberSaveable { mutableStateOf(prefs.getInt("ui_card_alpha", 100)) }
@@ -207,13 +206,10 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 val stored = copyBackgroundToAppStorage(context, uri, mime)
                     ?: return@rememberLauncherForActivityResult
                 backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
-                val isVideo = mime?.startsWith("video") == true
                 prefs.edit {
                     putString("background_uri", stored)
-                    putBoolean("background_is_video", isVideo)
                 }
                 backgroundUri = stored
-                backgroundIsVideo = isVideo
             }
 
             ListItem(
@@ -231,10 +227,8 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                             backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
                             prefs.edit {
                                 remove("background_uri")
-                                remove("background_is_video")
                             }
                             backgroundUri = null
-                            backgroundIsVideo = false
                         }) {
                             Icon(Icons.Filled.Delete, stringResource(R.string.settings_background_clear))
                         }
@@ -242,7 +236,7 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                 },
                 modifier = Modifier.clickable {
                     backgroundPicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 }
             )

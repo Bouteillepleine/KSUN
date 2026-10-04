@@ -330,7 +330,7 @@
     <string name="enable_risk">Enable risk detection</string>
     <string name="enable_risk_summary">Enable install-time risk detection for modules.</string>
     <string name="settings_background">App background</string>
-    <string name="settings_background_choose_media">Pick an image or video</string>
+    <string name="settings_background_choose_media">Pick an image</string>
     <string name="settings_background_selected">Background set. Tap to change</string>
     <string name="settings_background_clear">Clear background</string>
     <string name="settings_background_fill">Fill screen</string>

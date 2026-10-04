@@ -233,7 +233,6 @@ class MainActivity : FragmentActivity() {
 
     private fun readBackgroundSettings(p: android.content.SharedPreferences) = BackgroundSettings(
         uri = p.getString("background_uri", null),
-        isVideo = p.getBoolean("background_is_video", false),
         fillScreen = p.getBoolean("background_fill_screen", true),
         dimAlpha = p.getInt("background_dim", 0) / 100f
     )
@@ -291,7 +290,7 @@ class MainActivity : FragmentActivity() {
 
         prefsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
             when (key) {
-                "background_uri", "background_is_video", "background_fill_screen", "background_dim" ->
+                "background_uri", "background_fill_screen", "background_dim" ->
                     backgroundState.value = readBackgroundSettings(p)
                 "ui_card_alpha" -> surfaceAlphaState.value = p.getInt("ui_card_alpha", 100) / 100f
             }
