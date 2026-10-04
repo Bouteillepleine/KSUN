@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,8 +18,6 @@ data class BackgroundSettings(
     val fillScreen: Boolean = true,
     val dimAlpha: Float = 0f
 )
-
-val LocalBackgroundSettings = staticCompositionLocalOf { BackgroundSettings() }
 
 @Composable
 fun AppBackground(settings: BackgroundSettings, modifier: Modifier = Modifier) {
