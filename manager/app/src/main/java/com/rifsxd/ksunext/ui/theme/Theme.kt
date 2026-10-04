@@ -148,6 +148,7 @@ fun KernelSUTheme(
     dynamicColor: Boolean = true,
     amoledMode: Boolean = false,
     accent: AccentPair = DefaultAccentPair,
+    surfaceAlpha: Float = 1f,
     content: @Composable () -> Unit
 ) {
     val darkBase = DarkColorScheme.withAccent(accent, darkTheme = true)
@@ -191,8 +192,20 @@ fun KernelSUTheme(
         darkMode = darkTheme
     )
 
+    val a = surfaceAlpha.coerceIn(0f, 1f)
+    val finalScheme = if (a >= 1f) colorScheme else colorScheme.copy(
+        surface = colorScheme.surface.copy(alpha = a),
+        surfaceVariant = colorScheme.surfaceVariant.copy(alpha = a),
+        surfaceContainerLowest = colorScheme.surfaceContainerLowest.copy(alpha = a),
+        surfaceContainerLow = colorScheme.surfaceContainerLow.copy(alpha = a),
+        surfaceContainer = colorScheme.surfaceContainer.copy(alpha = a),
+        surfaceContainerHigh = colorScheme.surfaceContainerHigh.copy(alpha = a),
+        surfaceContainerHighest = colorScheme.surfaceContainerHighest.copy(alpha = a),
+        background = Color.Transparent
+    )
+
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = finalScheme,
         typography = Typography,
         shapes = Shapes,
         content = content

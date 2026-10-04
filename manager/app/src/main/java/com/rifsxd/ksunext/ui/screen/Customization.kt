@@ -1,6 +1,13 @@
 package com.rifsxd.ksunext.ui.screen
 
 import android.content.Context
+import android.net.Uri
+import android.webkit.MimeTypeMap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -11,6 +18,11 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Wallpaper
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.Brightness6
+import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.Translate
@@ -179,6 +191,92 @@ fun CustomizationScreen(navigator: DestinationsNavigator) {
                     prefs.edit { putBoolean("use_banner", it) }
                     useBanner = it
                 }
+            }
+
+            var backgroundUri by rememberSaveable { mutableStateOf(prefs.getString("background_uri", null)) }
+            var backgroundIsVideo by rememberSaveable { mutableStateOf(prefs.getBoolean("background_is_video", false)) }
+            var backgroundFill by rememberSaveable { mutableStateOf(prefs.getBoolean("background_fill_screen", true)) }
+            var backgroundDim by rememberSaveable { mutableStateOf(prefs.getInt("background_dim", 0)) }
+            var cardAlpha by rememberSaveable { mutableStateOf(prefs.getInt("ui_card_alpha", 100)) }
+
+            val backgroundPicker = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia()
+            ) { uri ->
+                if (uri == null) return@rememberLauncherForActivityResult
+                val mime = context.contentResolver.getType(uri)
+                val stored = copyBackgroundToAppStorage(context, uri, mime)
+                    ?: return@rememberLauncherForActivityResult
+                backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
+                val isVideo = mime?.startsWith("video") == true
+                prefs.edit {
+                    putString("background_uri", stored)
+                    putBoolean("background_is_video", isVideo)
+                }
+                backgroundUri = stored
+                backgroundIsVideo = isVideo
+            }
+
+            ListItem(
+                leadingContent = { Icon(Icons.Filled.Wallpaper, null) },
+                headlineContent = { Text(stringResource(R.string.settings_background)) },
+                supportingContent = {
+                    Text(
+                        if (backgroundUri == null) stringResource(R.string.settings_background_choose_media)
+                        else stringResource(R.string.settings_background_selected)
+                    )
+                },
+                trailingContent = {
+                    if (backgroundUri != null) {
+                        IconButton(onClick = {
+                            backgroundUri?.let { deleteOwnedBackgroundFile(context, it) }
+                            prefs.edit {
+                                remove("background_uri")
+                                remove("background_is_video")
+                            }
+                            backgroundUri = null
+                            backgroundIsVideo = false
+                        }) {
+                            Icon(Icons.Filled.Delete, stringResource(R.string.settings_background_clear))
+                        }
+                    }
+                },
+                modifier = Modifier.clickable {
+                    backgroundPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                    )
+                }
+            )
+
+            if (backgroundUri != null) {
+                SwitchItem(
+                    icon = Icons.Filled.Fullscreen,
+                    title = stringResource(R.string.settings_background_fill),
+                    summary = stringResource(R.string.settings_background_fill_summary),
+                    checked = backgroundFill
+                ) {
+                    prefs.edit { putBoolean("background_fill_screen", it) }
+                    backgroundFill = it
+                }
+
+                SliderItem(
+                    icon = Icons.Filled.Brightness6,
+                    title = stringResource(R.string.settings_background_dim),
+                    value = backgroundDim,
+                    onValueChange = {
+                        backgroundDim = it
+                        prefs.edit { putInt("background_dim", it) }
+                    }
+                )
+
+                SliderItem(
+                    icon = Icons.Filled.Opacity,
+                    title = stringResource(R.string.settings_card_opacity),
+                    value = cardAlpha,
+                    onValueChange = {
+                        cardAlpha = it
+                        prefs.edit { putInt("ui_card_alpha", it) }
+                    }
+                )
             }
 
             var dynamicColorEnabled by rememberSaveable {
@@ -389,6 +487,54 @@ private fun CustomizationPreview() {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
+
+@Composable
+private fun SliderItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    value: Int,
+    onValueChange: (Int) -> Unit
+) {
+    ListItem(
+        leadingContent = { Icon(icon, null) },
+        headlineContent = { Text(title) },
+        supportingContent = {
+            Column {
+                Text("$value%")
+                Slider(
+                    value = value.toFloat(),
+                    onValueChange = { onValueChange(it.toInt()) },
+                    valueRange = 0f..100f
+                )
+            }
+        }
+    )
+}
+
+private fun copyBackgroundToAppStorage(context: Context, uri: Uri, mimeType: String?): String? {
+    val dir = File(context.filesDir, "backgrounds")
+    if (!dir.exists()) dir.mkdirs()
+    val ext = mimeType?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+    val dst = if (!ext.isNullOrBlank()) {
+        File(dir, "background_${System.currentTimeMillis()}.$ext")
+    } else {
+        File(dir, "background_${System.currentTimeMillis()}")
+    }
+    context.contentResolver.openInputStream(uri)?.use { input ->
+        FileOutputStream(dst).use { output -> input.copyTo(output) }
+    } ?: return null
+    return Uri.fromFile(dst).toString()
+}
+
+private fun deleteOwnedBackgroundFile(context: Context, uriString: String) {
+    val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return
+    if (uri.scheme != "file") return
+    val path = uri.path ?: return
+    val owned = File(context.filesDir, "backgrounds").absolutePath + File.separator
+    if (!path.startsWith(owned)) return
+    runCatching { File(path).delete() }
+}
+
 @Composable
 private fun AccentPicker(
     selected: ThemeAccent,

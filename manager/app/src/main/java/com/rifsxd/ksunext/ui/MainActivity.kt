@@ -74,6 +74,8 @@ import com.rifsxd.ksunext.ksuApp
 import com.rifsxd.ksunext.ui.screen.BottomBarDestination
 import com.rifsxd.ksunext.ui.screen.FlashIt
 import com.rifsxd.ksunext.ui.theme.KernelSUTheme
+import com.rifsxd.ksunext.ui.component.AppBackground
+import com.rifsxd.ksunext.ui.component.BackgroundSettings
 import com.rifsxd.ksunext.ui.theme.AccentPair
 import com.rifsxd.ksunext.ui.theme.DefaultAccentPair
 import com.rifsxd.ksunext.ui.theme.DEFAULT_CUSTOM_ARGB
@@ -217,6 +219,9 @@ class MainActivity : FragmentActivity() {
     var dynamicColorState = mutableStateOf(true)
     var themeAccentState = mutableStateOf(DefaultAccentPair)
     var navBarEnabled = mutableStateOf(true)
+    var backgroundState = mutableStateOf(BackgroundSettings())
+    var surfaceAlphaState = mutableStateOf(1f)
+    private var prefsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
     private val handler = Handler(Looper.getMainLooper())
 
     val moduleViewModel: ModuleViewModel by viewModels()
@@ -225,6 +230,13 @@ class MainActivity : FragmentActivity() {
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase?.let { LocaleHelper.applyLanguage(it) })
     }
+
+    private fun readBackgroundSettings(p: android.content.SharedPreferences) = BackgroundSettings(
+        uri = p.getString("background_uri", null),
+        isVideo = p.getBoolean("background_is_video", false),
+        fillScreen = p.getBoolean("background_fill_screen", true),
+        dimAlpha = p.getInt("background_dim", 0) / 100f
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -253,6 +265,8 @@ class MainActivity : FragmentActivity() {
                 prefsInit.getInt("theme_accent_custom", DEFAULT_CUSTOM_ARGB)
             )
             navBarEnabled.value = prefsInit.getBoolean("enable_navbar", true)
+            backgroundState.value = readBackgroundSettings(prefsInit)
+            surfaceAlphaState.value = prefsInit.getInt("ui_card_alpha", 100) / 100f
         } catch (_: Exception) {}
 
         val isManager = Natives.isManager
@@ -275,12 +289,23 @@ class MainActivity : FragmentActivity() {
         if(intent != null)
             handleIntent(intent)
 
+        prefsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
+            when (key) {
+                "background_uri", "background_is_video", "background_fill_screen", "background_dim" ->
+                    backgroundState.value = readBackgroundSettings(p)
+                "ui_card_alpha" -> surfaceAlphaState.value = p.getInt("ui_card_alpha", 100) / 100f
+            }
+        }
+        prefsInit.registerOnSharedPreferenceChangeListener(prefsListener)
+
         setContent { Box(modifier = Modifier.fillMaxSize()) {
             KernelSUTheme(
                 dynamicColor = dynamicColorState.value,
                 amoledMode = amoledModeState.value,
-                accent = themeAccentState.value
+                accent = themeAccentState.value,
+                surfaceAlpha = surfaceAlphaState.value
             ) {
+                AppBackground(settings = backgroundState.value, modifier = Modifier.fillMaxSize())
                 var showSplash by remember { mutableStateOf(true) }
                 var splashRotationTarget by remember { mutableStateOf(0f) }
                 val splashRotation by animateFloatAsState(

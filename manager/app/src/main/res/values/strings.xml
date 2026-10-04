@@ -329,4 +329,12 @@
     <string name="biometric_prompt_subtitle_module">Unlock %1$s</string>
     <string name="enable_risk">Enable risk detection</string>
     <string name="enable_risk_summary">Enable install-time risk detection for modules.</string>
+    <string name="settings_background">App background</string>
+    <string name="settings_background_choose_media">Pick an image or video</string>
+    <string name="settings_background_selected">Background set. Tap to change</string>
+    <string name="settings_background_clear">Clear background</string>
+    <string name="settings_background_fill">Fill screen</string>
+    <string name="settings_background_fill_summary">Crop the background to cover the screen instead of fitting it.</string>
+    <string name="settings_background_dim">Background dim</string>
+    <string name="settings_card_opacity">Card opacity</string>
 </resources>
