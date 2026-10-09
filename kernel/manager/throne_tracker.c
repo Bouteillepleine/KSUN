@@ -43,9 +43,12 @@ static void crown_manager(const char *apk, struct list_head *uid_data)
 #else
 	char pkg[KSU_MAX_PACKAGE_NAME];
 	char dir_path[DATA_PATH_LEN];
+	char *last_slash;
 
 	strscpy(dir_path, apk, sizeof(dir_path));
-	*strrchr(dir_path, '/') = '\0'; // strip /base.apk
+	last_slash = strrchr(dir_path, '/');
+	if (last_slash)
+		*last_slash = '\0'; // strip /base.apk
 
 	if (get_pkg_from_apk_dir_path(pkg, dir_path) < 0) {
 		pr_err("Failed to get package name from apk dir path: %s\n", dir_path);
